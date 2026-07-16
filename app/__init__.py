@@ -5,13 +5,13 @@ from dotenv import load_dotenv
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
+from datetime import timedelta
 
 load_dotenv(override=True)
 
 app = Flask(__name__)
 
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
-
 
 servidor = os.getenv("DB_SERVER")
 banco = os.getenv("DB_DATABASE")
@@ -35,6 +35,8 @@ odbc_connection_string = (
 )
 
 connection_params = quote_plus(odbc_connection_string)
+
+app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(days=7)
 
 app.config["SQLALCHEMY_DATABASE_URI"] = (
     f"mssql+pyodbc:///?odbc_connect={connection_params}")

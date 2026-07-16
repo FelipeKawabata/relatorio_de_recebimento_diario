@@ -33,6 +33,7 @@ def login():
             return render_template("login.html")
         if usuario:
             session["usuario"] = usuario["user_name"]
+            session.permanent = "manter_conectado" in request.form
             return redirect(url_for("homepage"))
         flash("Usuário ou senha inválidos.")
     return render_template("login.html")
