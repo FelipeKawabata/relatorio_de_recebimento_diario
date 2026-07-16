@@ -5,16 +5,17 @@ from sqlalchemy import text
 
 @app.route('/', methods=['GET', 'POST'])
 def homepage():
+    if request.method == 'POST':
+        pass
 
-    return render_template('index.html')
+    data = request.args.get("data")
+    consulta = text("SELECT TOP 100 * FROM dbo.RDR_RECEBIMENTO "
+                    "WHERE DT_EMISSAO = :data "
+                    "ORDER BY PEDIDO"
+                    )
+    linhas_consulta = db.session.execute(
+        consulta, {"data": data}).mappings().all()
 
+    linhas = [dict(linha) for linha in linhas_consulta]
 
-@app.get('/recebimentos/')
-def recebimentos():
-        data = request.args.get("data")
-    consulta = text(
-        "SELECT TOP 100 * FROM dbo.RDR_RECEBIMENTO "
-        "WHERE DT_EMISSAO = :data "
-        "ORDER BY PEDIDO"
-    )
-    linhas = db.session.execute(consulta, {"data": data}).mappings().all()
+    return render_template('index.html', linhas=linhas)
