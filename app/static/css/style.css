@@ -1,10 +1,17 @@
-@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght=400;500;600;700&display=swap');
 
 :root {
     --azul_ia: 0, 94, 132;
     --azul_escuro_ia: 0, 35, 68;
     --off_white: 255, 255, 246;
     --azul_ia_claro: 204, 229, 244;
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
 }
 
 /*============================= CONFIGURAÇÕES DO HEADER ======================================== */
@@ -20,9 +27,12 @@
     margin: 0;
 }
 
-#id_header > .row {
-    margin-left: 0;
-    margin-right: 0;
+/* Força as linhas internas do header a ignorarem as margens negativas do Bootstrap */
+#id_header .row {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 0;
+    padding-right: 0;
 }
 
 #id_logo_ia_header {
@@ -32,28 +42,22 @@
 
 #id_top_row_header {
     align-items: center;
-
     padding: 15px 2%;
     margin: 0;
 }
 
 #id_top_row_header h1 {
     margin: 0;
-    font-weight:600;
+    font-weight: 600;
 }
 
 #id_under_row_header {
     min-height: 55px;
     background-color: rgb(var(--azul_escuro_ia));
     align-items: center;
-
     padding: 8px 2%;
     margin: 0;
 }
-
-/* FIM - CONFIGURAÇÕES GERAIS DO HEADER */
-
-/* ================================================================================ */
 
 /* CONFIGURAÇÕES DOS BOTÕES DO HEADER */
 
@@ -63,7 +67,6 @@ a.class_link_button {
     color: rgb(var(--off_white));
     width: 150px;
     padding: 3px 0;
-
     justify-content: center;
     align-items: center;
     text-decoration: none;
@@ -71,18 +74,14 @@ a.class_link_button {
 }
 
 a.class_link_button:hover {
-    text-decoration:underline;
+    text-decoration: underline;
     background-color: rgb(var(--azul_ia));
-    border: 3px solid rgb(var(--off_white));;
+    border: 3px solid rgb(var(--off_white));
 }
-
-/* FIM - CONFIGURAÇÕES DOS BOTÕES DO HEADER */
-
-/* ================================================================================ */
 
 /* CONFIGURAÇÕES DO BOTÃO DE LOGOUT */
 
-#id_div_botao_logout{
+#id_div_botao_logout {
     background-color: rgb(var(--azul_ia));
     border: 2px solid rgb(var(--off_white));
     border-radius: 25px;
@@ -93,71 +92,91 @@ a.class_link_button:hover {
     margin: 1px;
 }
 
-a.class_botao_logout{
+a.class_botao_logout {
     text-decoration: none;
     color: rgb(var(--off_white));
     padding: 0 5px;
     justify-content: center;
 }
 
-a.class_botao_logout:hover{
+a.class_botao_logout:hover {
     color: rgb(var(--azul_escuro_ia));
     font-weight: bold;
 }
 
-#id_div_botao_logout:has(a.class_botao_logout:hover){
+#id_div_botao_logout:has(a.class_botao_logout:hover) {
     background-color: rgb(var(--off_white));
     border: 2px solid rgb(var(--azul_ia));
 }
 
-
-#id_icone_sair_header{
+#id_icone_sair_header {
     width: 33px;
     height: 33px;
 }
 
 /*========================= FIM - CONFIGURAÇÕES DO HEADER ========================== */
 
+
+/*========================= CONFIGURAÇÕES DO FOOTER ================================= */
+
+#footer {
+    background-color: rgb(var(--azul_escuro_ia));
+    color: rgb(var(--off_white));
+    font-family: "Quicksand", system-ui, -apple-system, "Segoe UI", sans-serif;
+    padding: 3px 20px;
+    text-align: center;
+    width: 100%;
+    margin-top: auto;
+}
+
+.footer_text{
+    color: rgb(var(--off_white));
+}
+
+/*========================= FIM - CONFIGURAÇÕES DO FOOTER =========================== */
+
+
 /*========================= CONFIGURAÇÕES DA TELA DE LOGIN ========================== */
 
 /* CONFIGURAÇÕES DO BODY DO LOGIN */
 
-#body_login{
+#body_login {
     background-color: rgb(var(--azul_ia));
 }
+
 /* CONFIGURAÇÕES GERAIS DA DIV DA TELA DE LOGIN */
 
-#div_container_login{
+#div_container_login {
     background-color: white;
     padding: 10px 10px;
     border: 2px solid rgb(var(--azul_escuro_ia));
-    border-radius: 10px;
+    border-radius: 5px;
     justify-content: center;
     align-items: center;
     font-family: "Quicksand", system-ui, -apple-system, "Segoe UI", sans-serif;
     display: flex;
 }
 
-#id_texto_login{
+#id_texto_login {
     color: rgb(var(--azul_escuro_ia));
 }
 
 /* CONFIGURAÇÕES DO BOTÃO DA TELA DE LOGIN */
 
-#id_login_button{
+#id_login_button {
     background-color: rgb(var(--azul_ia));
     border: 2px solid rgb(var(--off_white));
-    border-radius: 10px;
+    border-radius: 5px;
     align-items: center;
     justify-content: center;
     padding: 15px;
 }
 
-#id_container_aviso_protheus{
+#id_container_aviso_protheus {
     background-color: rgb(var(--off_white));
     border: 2px solid rgb(var(--azul_ia));
     color: rgb(var(--azul_ia));
-    border-radius: 10px;
+    border-radius: 5px;
     padding: 5px 0;
     justify-content: center;
     align-items: center;
@@ -165,8 +184,8 @@ a.class_botao_logout:hover{
 
 /* CONFIGURAÇÕES DA IMAGEM DO LOGIN */
 
-#img_IA_login{
+#img_IA_login {
     max-width: 100%;
 }
 
-/*========================= FIM - CONFIGURAÇÕES DO TELA DE LOGIN ========================== */
+/*========================= FIM - CONFIGURAÇÕES DA TELA DE LOGIN ==================== */
