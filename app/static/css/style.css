@@ -4,6 +4,7 @@
     --azul_ia: 0, 94, 132;
     --azul_escuro_ia: 0, 35, 68;
     --off_white: 255, 255, 246;
+    --azul_ia_claro: 204, 229, 244;
 }
 
 /*============================= CONFIGURAÇÕES DO HEADER ======================================== */
@@ -52,6 +53,8 @@
 
 /* FIM - CONFIGURAÇÕES GERAIS DO HEADER */
 
+/* ================================================================================ */
+
 /* CONFIGURAÇÕES DOS BOTÕES DO HEADER */
 
 a.class_link_button {
@@ -70,9 +73,12 @@ a.class_link_button {
 a.class_link_button:hover {
     text-decoration:underline;
     background-color: rgb(var(--azul_ia));
+    border: 3px solid rgb(var(--off_white));;
 }
 
 /* FIM - CONFIGURAÇÕES DOS BOTÕES DO HEADER */
+
+/* ================================================================================ */
 
 /* CONFIGURAÇÕES DO BOTÃO DE LOGOUT */
 
@@ -109,6 +115,58 @@ a.class_botao_logout:hover{
     width: 33px;
     height: 33px;
 }
-    
 
-/*============================= CONFIGURAÇÕES DO HEADER ======================================== */
+/*========================= FIM - CONFIGURAÇÕES DO HEADER ========================== */
+
+/*========================= CONFIGURAÇÕES DA TELA DE LOGIN ========================== */
+
+/* CONFIGURAÇÕES DO BODY DO LOGIN */
+
+#body_login{
+    background-color: rgb(var(--azul_ia));
+}
+/* CONFIGURAÇÕES GERAIS DA DIV DA TELA DE LOGIN */
+
+#div_container_login{
+    background-color: white;
+    padding: 10px 10px;
+    border: 2px solid rgb(var(--azul_escuro_ia));
+    border-radius: 10px;
+    justify-content: center;
+    align-items: center;
+    font-family: "Quicksand", system-ui, -apple-system, "Segoe UI", sans-serif;
+    display: flex;
+}
+
+#id_texto_login{
+    color: rgb(var(--azul_escuro_ia));
+}
+
+/* CONFIGURAÇÕES DO BOTÃO DA TELA DE LOGIN */
+
+#id_login_button{
+    background-color: rgb(var(--azul_ia));
+    border: 2px solid rgb(var(--off_white));
+    border-radius: 10px;
+    align-items: center;
+    justify-content: center;
+    padding: 15px;
+}
+
+#id_container_aviso_protheus{
+    background-color: rgb(var(--off_white));
+    border: 2px solid rgb(var(--azul_ia));
+    color: rgb(var(--azul_ia));
+    border-radius: 10px;
+    padding: 5px 0;
+    justify-content: center;
+    align-items: center;
+}
+
+/* CONFIGURAÇÕES DA IMAGEM DO LOGIN */
+
+#img_IA_login{
+    max-width: 100%;
+}
+
+/*========================= FIM - CONFIGURAÇÕES DO TELA DE LOGIN ========================== */

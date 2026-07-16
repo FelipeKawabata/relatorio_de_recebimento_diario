@@ -10,6 +10,8 @@ load_dotenv(override=True)
 
 app = Flask(__name__)
 
+app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
+
 
 servidor = os.getenv("DB_SERVER")
 banco = os.getenv("DB_DATABASE")
