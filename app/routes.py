@@ -44,3 +44,8 @@ def login():
 def logout():
     session.pop("usuario", None)
     return redirect(url_for("login"))
+
+
+@app.route("/categorias")
+def categorias():
+    return render_template("categorias.html")

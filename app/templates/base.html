@@ -26,15 +26,18 @@
         </div>
 
         <div class="row" id="id_under_row_header">
-            <div class="col p-0 m-0">
-                <a
-                    href="{{ url_for('homepage') }}"
-                    class="class_link_button"
-                >
+            <div class="col-auto p-1 m-0">
+                <a href="{{ url_for('homepage') }}" class="class_link_button">
                     Página inicial
+                </a>  
+            </div>
+
+            <div class="col-auto p-1 m-0">
+                <a class="class_link_button" href="{{ url_for('categorias') }}">
+                    Gerenciar categorias
                 </a>
             </div>
-            <div class="col-auto p-0 m-0">
+            <div class="col-auto p-0 m-0 ms-auto">
                 <div class="d-flex align-items-center" id="id_div_botao_logout">
                     <a href="{{ url_for('logout' )}}" class="class_botao_logout">Logout</a>
                     <img src="{{ url_for('static',filename='img/logo_sair.svg')}}" alt="Icone sair" id="id_icone_sair_header">
