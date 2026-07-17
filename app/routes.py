@@ -5,12 +5,13 @@ from app.auth import autenticar_no_protheus, ProtheusIndisponivel, login_obrigat
 
 
 @app.route('/', methods=['GET', 'POST'])
+@login_obrigatorio
 def homepage():
     if request.method == 'POST':
         pass
 
     data = request.args.get("data")
-    consulta = text("SELECT TOP 100 * FROM dbo.RDR_RECEBIMENTO "
+    consulta = text("SELECT TOP 100 * FROM Protheus.dbo.RDR_RECEBIMENTO "
                     "WHERE DT_EMISSAO = :data "
                     "ORDER BY PEDIDO"
                     )

@@ -20,13 +20,18 @@ class InstrumentoMedicao(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     conferencia_id = db.Column(
-        db.Integer, ForeignKey('RDR_APP_CONFERENCIA.id'))
+        db.Integer, db.ForeignKey('RDR_APP_CONFERENCIA.id'), nullable=False)
     instrumento_id = db.Column(
-        db.Integer, ForeignKey('RDR_APP_LISTA_INSTRUMENTOS.id'))
+        db.Integer, db.ForeignKey('RDR_APP_LISTA_INSTRUMENTOS.id'), nullable=False)
 
-    conferencia = relationship('Conferencia', back_populates='instrumentos')
-    instrumento = relationship(
+    conferencia = db.relationship('Conferencia', back_populates='instrumentos')
+    instrumento = db.relationship(
         'ListaInstrumentos', back_populates='uso_instrumento')
+
+    __table_args__ = (
+        db.UniqueConstraint('conferencia_id', 'instrumento_id',
+                            name='uq_instrumento_por_conferencia'),
+    )
 
 
 class Conferencia(db.Model):

@@ -7,6 +7,7 @@ from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 from datetime import timedelta
 
+
 load_dotenv(override=True)
 
 app = Flask(__name__)
@@ -51,3 +52,4 @@ app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
 db = SQLAlchemy(app)
 
 from app.routes import homepage  # noqa: E402
+from app import models  # noqa: E402
