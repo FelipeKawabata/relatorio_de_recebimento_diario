@@ -1,5 +1,5 @@
-from sqlalchemy import create_engine, Column, Integer, String, Date, Boolean, DateTime, ForeignKey, Float, UniqueConstraint
-from sqlalchemy.orm import declarative_base, relationship, sessionmaker
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import relationship
 from datetime import datetime
 from app import db
 
@@ -13,6 +13,9 @@ class ListaInstrumentos(db.Model):
 
     uso_instrumento = relationship(
         'InstrumentoMedicao', back_populates='instrumento')
+
+    __table_args__ = (
+        db.UniqueConstraint('nome', name='uq_nome_instrumento'),)
 
 
 class InstrumentoMedicao(db.Model):
@@ -30,8 +33,7 @@ class InstrumentoMedicao(db.Model):
 
     __table_args__ = (
         db.UniqueConstraint('conferencia_id', 'instrumento_id',
-                            name='uq_instrumento_por_conferencia'),
-    )
+                            name='uq_instrumento_por_conferencia'),)
 
 
 class Conferencia(db.Model):
@@ -43,13 +45,16 @@ class Conferencia(db.Model):
     nota_fiscal = db.Column(db.String(9), nullable=False)
     dt_hr_inspecao = db.Column(
         db.DateTime, default=datetime.now, nullable=False)
+    qt_total = db.Column(db.Integer, nullable=False)
     corrida = db.Column(db.String(20), nullable=True)
-    plano_controle = db.Column(db.String(20), nullable=True)
+    plano_controle_id = db.Column(
+        db.Integer, ForeignKey('RDR_PLANO_CONTROLE.id'))
     analise_certificado = db.Column(db.Boolean, nullable=False)
     analise_visual = db.Column(db.Boolean, nullable=False)
     identif_e_rastreabilidade = db.Column(db.Boolean, nullable=False)
     dimensional = db.Column(db.Boolean, nullable=False)
     dureza_sha = db.Column(db.Boolean, nullable=False)
+    id_ligas = db.Column(db.Boolean, nullable=False)
     dureza_tt = db.Column(db.Boolean, nullable=False)
     ranhura = db.Column(db.Boolean, nullable=False)
     fios18_21 = db.Column(db.Boolean, nullable=False)
@@ -61,6 +66,39 @@ class Conferencia(db.Model):
 
     instrumentos = relationship(
         'InstrumentoMedicao', back_populates='conferencia')
+    plano_controle = relationship(
+        'PlanoControle', back_populates='origem_plano_controle')
 
     __table_args__ = (db.UniqueConstraint('pedido', 'item',
                       'nota_fiscal', name='uq_conferencia_pedido_item_nf'),)
+
+
+class PlanoControle(db.Model):
+    __tablename__ = "RDR_PLANO_CONTROLE"
+    id = db.Column(db.Integer, primary_key=True)
+    nome = db.Column(db.String(30), nullable=False)
+    descricao = db.Column(db.String(50))
+
+    origem_plano_controle = relationship(
+        'Conferencia', back_populates='plano_controle')
+
+    __table_args__ = (
+        db.UniqueConstraint('nome', name='uq_nome_plano_de_controle'),)
+
+
+class Recebimento(db.Model):
+    __tablename__ = "RDR_RECEBIMENTO"
+    __table_args__ = {"schema": "Protheus.dbo"}
+
+    pedido = db.Column("PEDIDO", db.String(6), primary_key=True)
+    item = db.Column("ITEM", db.String(4), primary_key=True)
+    nota_fiscal = db.Column("NOTA_FISCAL", db.String(9), primary_key=True)
+    produto = db.Column("PRODUTO", db.String(20))
+    descricao = db.Column("DESCRICAO", db.String(100))
+    quantidade = db.Column("QUANTIDADE", db.Numeric(12, 2))
+    nome_fornecedor = db.Column("NOME_FORNECEDOR", db.String(100))
+    cod_fornecedor = db.Column("COD_FORNECEDOR", db.String(6))
+    loja_fornecedor = db.Column("LOJA_FORNECEDOR", db.String(2))
+    dt_emissao = db.Column("DT_EMISSAO", db.Date)
+    emissao_nf = db.Column("EMISSAO_NF", db.Date)
+    b1_iaespec = db.Column("B1_IAESPEC", db.String(50))

@@ -1,9 +1,47 @@
 {% extends 'base.html' %}
 
-{% block title %}Hello world!{% endblock %}
+{% block titulo %}Hello world!{% endblock %}
 
 {% block content %}
 
-<div class="container"></div>
+<div class="container p-1">
+    <div id="table_index">
+
+    <table class="table table-hover">
+        <thead id="index_table_head" class="align-middle text-center">
+            <tr>
+                <td>Pedido/Item</td>
+                <td>Produto</td>
+                <td>Descrição</td>
+                <td>Quantidade</td>
+                <td>Fornecedor</td>
+                <td>Data emissão</td>
+                <td>Nota fiscal</td>
+                <td>Especificação</td>
+            </tr>
+        </thead>
+        <tbody class="align-middle text-center">
+
+            {% for linha in linhas %}
+            <tr>
+                <td>{{ linha.pedido + '/' + linha.item }}</td>
+                <td>{{ linha.produto }}</td>
+                <td>{{ linha.descricao }}</td>
+                <td>{{ linha.quantidade }}</td>
+                <td>{{ linha.nome_fornecedor }}</td>
+                <td>{{ linha.dt_emissao }}</td>
+                <td>{{ linha.nota_fiscal }}</td>
+                <td>{{ linha.b1_iaespec }}</td>
+            </tr>
+            {% else %}
+                <tr><td>Essa lista está vazia</td></tr>
+            {% endfor %}
+        </tbody>
+
+    </table>
+
+
+    </div>
+</div>
 
 {% endblock %}

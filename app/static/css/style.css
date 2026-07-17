@@ -189,3 +189,23 @@ a.class_botao_logout:hover {
 }
 
 /*========================= FIM - CONFIGURAÇÕES DA TELA DE LOGIN ==================== */
+
+
+/*========================= CONFIGURAÇÕES DE INDEX.HTML ========================== */
+
+/* CONFIGURAÇÕES DA TABELA */
+
+#index_table_head td {
+    background-color: rgb(var(--azul_ia));
+    color: rgb(var(--off_white));
+    font-weight: bold;
+}
+
+#table_index{
+    border: 1px groove rgb(var(--azul_escuro_ia));
+    border-radius: 5px;
+}
+
+
+
+/*========================= FIM - CONFIGURAÇÕES DE INDEX.HTML ==================== */

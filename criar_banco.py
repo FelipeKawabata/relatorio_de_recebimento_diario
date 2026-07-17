@@ -1,6 +1,7 @@
 import os
 from urllib.parse import quote_plus
 from sqlalchemy import create_engine
+from app.models import ListaInstrumentos, InstrumentoMedicao, Conferencia, PlanoControle
 
 from app import db
 from app import models  # noqa: F401 — registra as tabelas no db.metadata
@@ -15,5 +16,11 @@ odbc = (
 )
 engine = create_engine(f"mssql+pyodbc:///?odbc_connect={quote_plus(odbc)}")
 
-db.metadata.create_all(engine)
+db.metadata.create_all(engine, tables=[
+    ListaInstrumentos.__table__,
+    InstrumentoMedicao.__table__,
+    Conferencia.__table__,
+    PlanoControle.__table__,
+])
+
 print("Tabelas criadas!")
