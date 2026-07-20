@@ -1,6 +1,361 @@
 {% extends 'base.html' %}
 
-{% block titulo %}{% endblock %}
+{% block titulo %}Gerenciador de categorias{% endblock %}
 
 {% block content %}
+
+<div class="container mt-2">
+    
+</div>
+
+<div class="container mt-2">
+
+    <div class="accordion" id="categoria">
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="header_1">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                data-bs-target="#item_1" aria-expanded="false" aria-controls="item_1">
+                Categoria - Processo
+                </button>
+            </h2>
+            <div id="item_1" class="accordion-collapse collapse" aria-labelledby="header_1"
+                data-bs-parent="#categoria">
+
+                <div class="accordion-body">
+
+
+                    <div class="border my-4 p-3 text-center mx-auto" style="max-width: 420px;">
+                    <form method="post">
+                        {{ form_processo.hidden_tag() }}
+                        <div class="mb-3">
+                            {{ form_processo.nome.label(class="form-label") }}
+                            {{ form_processo.nome(class="form-control") }}
+                            {% for erro in form_processo.nome.errors %}
+                                <div class="text-danger small">{{ erro }}</div>
+                            {% endfor %}
+                            </div>
+                            {{ form_processo.enviar_processo(class="categoria_post_button") }}
+                    </form>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="categorias_table_header">
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>Editar/excluir</th>
+                                </tr>
+                            </thead>
+                            <tbody class="categorias_table_body">
+                                {% for linha in linhas_processo %}
+                                    <tr>
+                                        <td>{{ linha.nome }}</td>
+                                        <td>
+                                            <a href="" class="categoria_table_button">Editar</a>
+                                            <a href="" class="categoria_table_button">Excluir</a>
+                                        </td>
+                                    </tr>
+                                {% else %}
+                                    <tr>
+                                        <td colspan="2" class="text-muted">Nenhum registro encontrado!</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="header_2">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                data-bs-target="#item_2" aria-expanded="false" aria-controls="item_2">
+                Categoria - Grupo material
+                </button>
+            </h2>
+            <div id="item_2" class="accordion-collapse collapse" aria-labelledby="header_2"
+                data-bs-parent="#categoria">
+                
+                <div class="accordion-body">
+
+
+                <div class="border my-4 p-3 text-center mx-auto" style="max-width: 420px;">
+                    <form method="post">
+                        {{ form_grupo_material.hidden_tag() }}
+                        <div class="mb-3">
+                        {{ form_grupo_material.nome.label(class="form-label") }}
+                        {{ form_grupo_material.nome(class="form-control") }}
+                         {% for erro in form_grupo_material.nome.errors %}
+                                <div class="text-danger small">{{ erro }}</div>
+                            {% endfor %}
+                            
+
+                        </div>
+                        {{ form_grupo_material.enviar_grupo_material(class="categoria_post_button") }}
+                    </form>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="categorias_table_header">
+                            <tr>
+                                <th>Nome</th>
+                                <th>Editar/excluir</th>
+                            </tr>
+                        </thead>
+                        <tbody class="categorias_table_body">
+                            {% for linha in linhas_gp_material %}
+                            <tr>
+                                <td>{{ linha.nome }}</td>
+                                <td>
+                                    <a href="" class="categoria_table_button">Editar</a>
+                                    <a href="" class="categoria_table_button">Excluir</a>
+                                </td>
+                            </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="2" class="text-muted">Nenhum registro de grupo de material encontrado</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                </div>
+                
+                </div>
+        </div>
+      <div class="accordion-item">
+            <h2 class="accordion-header" id="header_3">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                data-bs-target="#item_3" aria-expanded="false" aria-controls="item_3">
+                Categoria - Materiais
+                </button>
+            </h2>
+            <div id="item_3" class="accordion-collapse collapse" aria-labelledby="header_3"
+                data-bs-parent="#categoria">
+
+                <div class="accordion-body">
+
+
+                    <div class="border my-4 p-3 text-center mx-auto" style="max-width: 620px;">
+                    <form method="post">
+                    <div class="mb-3">
+                        {{ form_material.hidden_tag() }}
+                        <div class="row p-2">
+                            <div class="col-6">
+                            {{ form_material.nome.label(class="form-label") }}
+                            </div>
+                            <div class="col-6">
+                            {{ form_material.nome(class="form-control") }}
+                            </div>
+                        </div>
+                         <div class="row p-2">
+                            <div class="col-6">
+                            {{ form_material.especificacao.label(class="form-label") }}
+                            </div>
+                            <div class="col-6">
+                            {{ form_material.especificacao(class="form-control") }}
+                            </div>
+                        </div>
+                        <div class="row p-2">
+                            <div class="col-6">
+                            {{ form_material.grupo_id.label(class="form-label") }}
+                            </div>
+                            <div class="col-6">
+                            {{ form_material.grupo_id(class="form-select text-center") }}
+                            </div>
+                        </div>                        
+                            {% for erro in form_processo.nome.errors %}
+                                <div class="text-danger small">{{ erro }}</div>
+                            {% endfor %}
+                            </div>
+                            {{ form_material.enviar_material(class="categoria_post_button") }}
+                    </form>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="categorias_table_header">
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>Especificação técnica</th>
+                                    <th>Grupo do material</th>
+                                    <th>Editar/Excluir</th>
+                                </tr>
+                            </thead>
+                            <tbody class="categorias_table_body">
+                                {% for linha in linhas_material %}
+                                    <tr>
+                                        <td>{{ linha.nome }}</td>
+                                        <td>{{ linha.especificacao }}</td>
+                                        {% if not linha.grupo_id %}
+                                        <td>-</td>
+                                        {% else %}
+                                        <td>{{ linha.grupo_id }}</td>
+                                        {% endif %}
+                                        <td>
+                                            <a href="" class="categoria_table_button">Editar</a>
+                                            <a href="" class="categoria_table_button">Excluir</a>
+                                        </td>
+                                    </tr>
+                                {% else %}
+                                    <tr>
+                                        <td colspan="2" class="text-muted">Nenhum registro encontrado!</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+     <div class="accordion-item">
+            <h2 class="accordion-header" id="header_5">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                data-bs-target="#item_5" aria-expanded="false" aria-controls="item_5">
+                Categoria - Instrumentos
+                </button>
+            </h2>
+            <div id="item_5" class="accordion-collapse collapse" aria-labelledby="header_5"
+                data-bs-parent="#categoria">
+
+                <div class="accordion-body">
+
+            <div class="border my-4 p-3 text-center mx-auto" style="max-width: 420px;">
+                <form method="post">
+       
+                    {{ form_instrumentos.hidden_tag() }}
+
+           
+                    <div class="row mb-3 align-items-center">
+                        <div class="col-6 text-center">
+                            {{ form_instrumentos.nome.label(class="form-label") }}
+                        </div>
+                        <div class="col-6">
+                            {{ form_instrumentos.nome(class="form-control") }}
+                            {% for erro in form_instrumentos.nome.errors %}
+                                <div class="text-danger small text-start mt-1">{{ erro }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                 
+                    <div class="row mb-3 align-items-center">
+                        <div class="col-6 text-center">
+                            {{ form_instrumentos.descricao.label(class="form-label") }}
+                        </div>
+                        <div class="col-6">
+                            {{ form_instrumentos.descricao(class="form-control") }}
+                            {% for erro in form_instrumentos.descricao.errors %}
+                                <div class="text-danger small text-start mt-1">{{ erro }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+               
+                    <div class="mt-4">
+                        {{ form_instrumentos.enviar_instrumento(class="categoria_post_button") }}
+                    </div>
+                </form>
+            </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="categorias_table_header">
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>Descrição</th>
+                                    <th>Editar/Excluir</th>
+                                </tr>
+                            </thead>
+                            <tbody class="categorias_table_body">
+                                {% for linha in linhas_instrumentos %}
+                                    <tr>
+                                        <td>{{ linha.nome }}</td>
+                                        <td>{{ linha.descricao }}</td>
+                                        <td>
+                                            <a href="" class="categoria_table_button">Editar</a>
+                                            <a href="" class="categoria_table_button">Excluir</a>
+                                        </td>
+                                    </tr>
+                                {% else %}
+                                    <tr>
+                                        <td colspan="2" class="text-muted">Nenhum registro encontrado!</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="header_4">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                data-bs-target="#item_4" aria-expanded="false" aria-controls="item_4">
+                Categoria - Plano de controle
+                </button>
+            </h2>
+            <div id="item_4" class="accordion-collapse collapse" aria-labelledby="header_4"
+                data-bs-parent="#categoria">
+
+                <div class="accordion-body">
+
+                     <div class="border my-4 p-3 text-center mx-auto" style="max-width: 420px;">
+                    <form method="post">
+                        {{ form_plano_de_controle.hidden_tag() }}
+                        <div class="mb-3">
+                        {{ form_plano_de_controle.nome.label(class="form-label") }}
+                        {{ form_plano_de_controle.nome(class="form-control") }}
+                         {% for erro in form_plano_de_controle.nome.errors %}
+                                <div class="text-danger small">{{ erro }}</div>
+                            {% endfor %}
+                            
+
+                        </div>
+                        {{ form_plano_de_controle.enviar_plano_controle(class="categoria_post_button") }}
+                    </form>
+                </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="categorias_table_header">
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>Editar/Excluir</th>
+                                </tr>
+                            </thead>
+                            <tbody class="categorias_table_body">
+                                {% for linha in linhas_plano_de_controle %}
+                                    <tr>
+                                        <td>{{ linha.nome }}</td>
+                                        <td>
+                                            <a href="" class="categoria_table_button">Editar</a>
+                                            <a href="" class="categoria_table_button">Excluir</a>
+                                        </td>
+                                    </tr>
+                                {% else %}
+                                    <tr>
+                                        <td colspan="2" class="text-muted">Nenhum registro encontrado!</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+</div>
 {% endblock %}

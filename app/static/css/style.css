@@ -12,6 +12,7 @@ html, body {
     margin: 0;
     display: flex;
     flex-direction: column;
+    font-family: "Quicksand", system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 
 /*============================= CONFIGURAÇÕES DO HEADER ======================================== */
@@ -61,22 +62,26 @@ html, body {
 
 /* CONFIGURAÇÕES DOS BOTÕES DO HEADER */
 
-a.class_link_button {
+.class_link_button {
     border: 2px solid rgb(var(--off_white));
     border-radius: 2px;
     color: rgb(var(--off_white));
-    width: 160px;
-    padding: 3px 0;
+    min-width: 160px;
+    padding: 3px 12px;
     justify-content: center;
     align-items: center;
     text-decoration: none;
     display: flex;
+    white-space: nowrap;
+    background-color: transparent;
+    font: inherit;
+    cursor: pointer;
 }
 
-a.class_link_button:hover {
+.class_link_button:hover {
     text-decoration: underline;
     background-color: rgb(var(--azul_ia));
-    border: 3px solid rgb(var(--off_white));
+    box-shadow: inset 0 0 0 1px rgb(var(--off_white));
 }
 
 /* CONFIGURAÇÕES DO BOTÃO DE LOGOUT */
@@ -206,6 +211,82 @@ a.class_botao_logout:hover {
     border-radius: 5px;
 }
 
+/* CONFIGURAÇÕES DA DIV COM FILTRO E BOTÃO DE ADICIONAR RECEBIMENTO */
 
+#div_filters{
+    border: 2px solid rgb(var(--azul_escuro_ia));
+    border-radius: 3px;
+}
+
+#row_over_filter_index{
+    background-color: rgb(var(--azul_escuro_ia));
+}
+
+/* CONFIGURAÇÕES DOS MODAIS */
+
+#pedido_de_compra_post_button{
+    background-color: rgb(var(--azul_ia));
+    color: white;
+    text-decoration: none;
+    text-align: center;
+    justify-content: center;
+    max-width: 200px;
+}
+
+#id_abrir_modal_pedido_de_compra{
+    background-color: rgb(var(--azul_ia));
+    color: white;
+    text-decoration: none;
+    text-align: center;
+    justify-content: center;
+    max-width: 200px;
+}
 
 /*========================= FIM - CONFIGURAÇÕES DE INDEX.HTML ==================== */
+
+/*========================= CONFIGURAÇÕES DE CATEGORIAS.HTML ========================== */
+
+/* CONFIGURAÇÕES DO CORPO E CABEÇARIO DAS TABELAS EM CATEGORIAS */
+
+.categorias_table_header{
+    vertical-align: middle;
+    text-align: center;
+}
+
+.categorias_table_body{
+    vertical-align: middle;
+    text-align: center;
+}
+
+/* CONFIGURAÇÕES DOS BOTÕES DAS TABELAS EM CATEGORIAS */
+
+.categoria_post_button{
+    background-color: rgb(var(--azul_ia));
+    color: white;
+    border: 2px solid rgb(var(--azul_escuro_ia));
+    border-radius: 5px;
+}
+
+.categoria_post_button:hover{
+    text-decoration:underline;
+}
+
+.categoria_table_button{
+    background-color: rgb(var(--azul_ia));
+    color: white;
+    border: 2px solid rgb(var(--azul_escuro_ia));
+    border-radius: 5px;
+    padding: 1px 5px;
+    margin: 1px 1px;
+    text-decoration: none;
+}
+
+a.categoria_table_button:hover{
+    text-decoration:underline;
+}
+
+
+
+
+
+/*========================= FIM - CONFIGURAÇÕES DE CATEGORIAS.HTML ==================== */

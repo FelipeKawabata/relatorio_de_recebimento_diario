@@ -7,12 +7,12 @@ from flask import session
 class GrupoMaterialForm(FlaskForm):
     nome = StringField('Nome do grupo de materiais',
                        validators=[DataRequired()])
-    enviar = SubmitField('Adicionar grupo de materiais')
+    enviar_grupo_material = SubmitField('Adicionar grupo de materiais')
 
 
 class ProcessoForm(FlaskForm):
     nome = StringField('Nome do processo/estado', validators=[DataRequired()])
-    enviar = SubmitField('Adicionar processo/estado')
+    enviar_processo = SubmitField('Adicionar processo/estado')
 
 
 class MaterialForm(FlaskForm):
@@ -20,19 +20,19 @@ class MaterialForm(FlaskForm):
     especificacao = StringField(
         'Especificação técnica', validators=[DataRequired()])
     grupo_id = SelectField('Grupo do material', coerce=int)
-    enviar = SubmitField('Adicione material')
+    enviar_material = SubmitField('Adicionar material')
 
 
 class ListaInstrumentosForm(FlaskForm):
     nome = StringField('Nome', validators=[DataRequired()])
     descricao = StringField('Descrição')
-    enviar = SubmitField('Adicionar instrumento')
+    enviar_instrumento = SubmitField('Adicionar instrumento')
 
 
 class PlanoControleForm(FlaskForm):
     nome = StringField('Nome', validators=[DataRequired()])
     descricao = StringField('Descrição')
-    enviar = SubmitField('Adicionar plano de controle')
+    enviar_plano_controle = SubmitField('Adicionar plano de controle')
 
 
 class InstrumentoMedicaoForm(Form):

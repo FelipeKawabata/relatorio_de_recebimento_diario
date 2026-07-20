@@ -1,8 +1,11 @@
 from flask import render_template, url_for, request, jsonify, redirect, session, flash
 from app import app, db
-from sqlalchemy import text
 from app.auth import autenticar_no_protheus, ProtheusIndisponivel, login_obrigatorio
-from app.models import Recebimento
+from app.models import Recebimento, Processo, GrupoMaterial, Material, PlanoControle, ListaInstrumentos
+from app.metodos import lista_tabela, adicionar_processo, adicionar_grupo_material, adicionar_material
+from app.metodos import adicionar_plano_de_controle, adicionar_instrumento
+from app.forms import ProcessoForm, GrupoMaterialForm, MaterialForm, PlanoControleForm, ListaInstrumentosForm
+from sqlalchemy.exc import IntegrityError
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -46,6 +49,74 @@ def logout():
     return redirect(url_for("login"))
 
 
-@app.route("/categorias")
+@app.route("/categorias", methods=['GET', 'POST'])
+@login_obrigatorio
 def categorias():
-    return render_template("categorias.html")
+
+    # CRIAÇÃO DE CADA FORMULÁRIO
+
+    form_processo = ProcessoForm()
+    form_grupo_material = GrupoMaterialForm()
+    form_material = MaterialForm()
+    form_plano_de_controle = PlanoControleForm()
+    form_instrumentos = ListaInstrumentosForm()
+
+    # POPULAÇÃO DOS CAMPOS SELECT
+
+    form_material.grupo_id.choices = [
+        (g.id, g.nome) for g in lista_tabela(GrupoMaterial)]
+
+    # ORGANIZAÇÃO DE CADA UM DOS METODOS POST
+
+    if form_processo.enviar_processo.data and form_processo.validate_on_submit():
+        adicionar_processo(form_processo.nome.data)
+        flash('Processo adicionado com sucesso!')
+        return redirect(url_for('categorias'))
+
+    elif (form_grupo_material.enviar_grupo_material.data
+          and form_grupo_material.validate_on_submit()):
+        adicionar_grupo_material(form_grupo_material.nome.data)
+        flash('Grupo de material adicionado com sucesso')
+        return redirect(url_for('categorias'))
+
+    elif form_material.enviar_material.data and form_material.validate_on_submit():
+        adicionar_material(form_material.nome.data,
+                           form_material.especificacao.data,
+                           form_material.grupo_id.data)
+        flash('Material adicionado com sucesso')
+        return redirect(url_for('categorias'))
+
+    elif form_plano_de_controle.enviar_plano_controle.data and form_plano_de_controle.validate_on_submit():
+        adicionar_plano_de_controle(form_plano_de_controle.nome.data,
+                                    form_plano_de_controle.descricao.data)
+        flash('Plano de controle adicionado com sucesso')
+        return redirect(url_for('categorias'))
+
+    elif form_instrumentos.enviar_instrumento.data and form_instrumentos.validate_on_submit():
+        adicionar_instrumento(form_instrumentos.nome.data,
+                              form_instrumentos.descricao.data)
+        flash('Instrumento adicionado com sucesso')
+        return redirect(url_for('categorias'))
+
+    # LINHAS PARA PREENCHIMENTO DE TABELA
+
+    linhas_processo = lista_tabela(Processo)
+    linhas_gp_material = lista_tabela(GrupoMaterial)
+    linhas_material = lista_tabela(Material)
+    linhas_plano_de_controle = lista_tabela(PlanoControle)
+    linhas_instrumentos = lista_tabela(ListaInstrumentos)
+
+    return render_template("categorias.html",
+                           # POST
+                           form_processo=form_processo,
+                           form_grupo_material=form_grupo_material,
+                           form_material=form_material,
+                           form_plano_de_controle=form_plano_de_controle,
+                           form_instrumentos=form_instrumentos,
+                           # GET
+                           linhas_processo=linhas_processo,
+                           linhas_gp_material=linhas_gp_material,
+                           linhas_material=linhas_material,
+                           linhas_plano_de_controle=linhas_plano_de_controle,
+                           linhas_instrumentos=linhas_instrumentos
+                           )
