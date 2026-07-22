@@ -1,5 +1,5 @@
 from app import db
-from app.models import Processo, ListaInstrumentos, GrupoMaterial, Material, PlanoControle, Recebimento
+from app.models import Processo, ListaInstrumentos, GrupoMaterial, Material, PlanoControle, Recebimento, Conferencia, Corrida, InstrumentoMedicao
 from flask import flash, redirect, url_for, flash, current_app
 from sqlalchemy.exc import IntegrityError
 import re
@@ -44,6 +44,74 @@ def procurar_pedido_de_compra(pedido_de_compra):
         return []
 
     return linhas
+
+
+def adicionar_recebimento(form):
+    conferencia = Conferencia(
+        pedido=form.pedido.data,
+        item=form.item.data,
+        nota_fiscal=form.nota_fiscal.data,
+        qt_total=form.qt_total.data,
+        certificado=form.certificado.data,
+        plano_controle_id=form.plano_controle_id.data or None,
+        processo_id=form.processo_id.data or None,
+        material_id=form.material_id.data or None,
+        analise_certificado=form.analise_certificado.data,
+        analise_visual=form.analise_visual.data,
+        identif_e_rastreabilidade=form.identif_e_rastreabilidade.data,
+        dimensional=form.dimensional.data,
+        dureza_sha=form.dureza_sha.data,
+        id_ligas=form.id_ligas.data,
+        dureza_tt=form.dureza_tt.data,
+        ranhura=form.ranhura.data,
+        fios18_21=form.fios18_21.data,
+        rugosidade_acabamento=form.rugosidade_acabamento.data,
+        pecas_aprovadas=form.pecas_aprovadas.data,
+        pecas_reprovadas=form.pecas_reprovadas.data,
+        rpnc=form.rpnc.data,
+        responsavel=form.responsavel.data,
+    )
+
+    for entrada in form.corridas:
+        conferencia.corridas.append(
+            Corrida(corrida=entrada.corrida.data,
+                    qtd_corrida=entrada.qtd_corrida.data))
+
+    for entrada in form.instrumentos:
+        conferencia.instrumentos.append(
+            InstrumentoMedicao(instrumento_id=entrada.instrumento_id.data))
+
+    try:
+        db.session.add(conferencia)
+        db.session.commit()
+        return True
+
+    except IntegrityError:
+        db.session.rollback()
+        flash('Já existe uma conferência para este pedido/item/nota fiscal.')
+        return False
+
+    except SQLAlchemyError:
+        db.session.rollback()
+        current_app.logger.exception(
+            'Falha ao gravar conferência %s/%s/%s',
+            form.pedido.data, form.item.data, form.nota_fiscal.data)
+        flash('Erro ao gravar o recebimento. Tente novamente.')
+        return False
+
+
+def montar_choices(form):
+    form.processo_id.choices = [(0, '— selecione —')] + \
+        [(p.id, p.nome) for p in lista_tabela(Processo)]
+    form.material_id.choices = [(0, '— selecione —')] + \
+        [(m.id, m.nome) for m in lista_tabela(Material)]
+    form.plano_controle_id.choices = [(0, '— selecione —')] + \
+        [(p.id, p.nome) for p in lista_tabela(PlanoControle)]
+
+    instrumentos = [(i.id, i.nome) for i in lista_tabela(ListaInstrumentos)]
+    for entrada in form.instrumentos:
+        entrada.instrumento_id.choices = instrumentos
+
 
 # FUNÇÕES PARA ADICIONAR DADOS POR CATEGORIA
 

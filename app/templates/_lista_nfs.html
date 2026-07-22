@@ -1,0 +1,23 @@
+{% if erro %}
+
+    <p class="text-danger mb-0 mt-3">{{ erro }}</p>
+
+{% else %}
+
+    <hr>
+    <p class="mb-2">Selecione a nota fiscal:</p>
+
+    {% for linha in linhas %}
+    <button type="button" class="btn btn-outline-primary w-100 mb-2 text-start"
+            hx-post="{{ url_for('escolher_nota') }}"
+            hx-vals='{"pedido": "{{ linha.pedido }}",
+                      "item": "{{ linha.item }}",
+                      "nota_fiscal": "{{ linha.nota_fiscal }}"}'
+            hx-target="#corpo_modal_conferencia"
+            hx-swap="innerHTML">
+        <strong>NF {{ linha.nota_fiscal }}</strong><br>
+        <small>{{ linha.produto }} — {{ linha.quantidade }} un. — {{ linha.nome_fornecedor }}</small>
+    </button>
+    {% endfor %}
+
+{% endif %}

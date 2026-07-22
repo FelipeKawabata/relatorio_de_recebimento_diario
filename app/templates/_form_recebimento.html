@@ -1,0 +1,115 @@
+
+
+<form hx-post="{{ url_for('gravar_recebimento') }}"
+      hx-target="#corpo_modal_conferencia"
+      hx-swap="innerHTML">
+
+    {{ form.hidden_tag() }}
+
+    {{ form.pedido(type="hidden") }}
+    {{ form.item(type="hidden") }}
+    {{ form.nota_fiscal(type="hidden") }}
+
+        <dl class="row mb-0">
+        <dt class="col-5">Pedido / Item</dt>
+        <dd class="col-7">{{ linha.pedido }} / {{ linha.item }}</dd>
+
+        <dt class="col-5">Nota fiscal</dt>
+        <dd class="col-7">{{ linha.nota_fiscal }}</dd>
+
+        <dt class="col-5">Produto</dt>
+        <dd class="col-7">{{ linha.produto }} — {{ linha.descricao }}</dd>
+
+        <dt class="col-5">Quantidade</dt>
+        <dd class="col-7">{{ linha.quantidade }}</dd>
+
+        <dt class="col-5">Fornecedor</dt>
+        <dd class="col-7">{{ linha.nome_fornecedor }}</dd>
+        </dl>
+
+    <hr>
+    <div class="row">
+    <div class="col-6">
+
+    <div class="row">
+        <div class="col-6">
+        {{ form.qt_total.label(class="form-label") }} {{ form.qt_total(class="form-control") }}
+        </div>
+        <div class="col-6">
+        {{ form.certificado.label(class="form-label") }} {{ form.certificado(class="form-control") }}
+        </div>
+    </div>
+    <div class="row">
+    <div class="col-6">
+    {{ form.plano_controle_id.label(class="form-label") }} {{ form.plano_controle_id(class="form-control") }}
+    </div>
+    <div class="col-6">
+    {{ form.processo_id.label(class="form-label") }} {{ form.processo_id(class="form-control") }}
+    </div>
+    </div>
+    {{ form.material_id.label(class="form-label") }} {{ form.material_id(class="form-control") }}
+
+    </div>
+    <div class="col-6">
+
+    <h5>Corridas</h5>
+
+    <div id="lista_corridas">
+        {% include '_corridas.html' %}
+    </div>
+
+    <button type="button" class="btn btn-sm btn-outline-secondary mb-3"
+            hx-post="{{ url_for('nova_linha_corrida') }}"
+            hx-include="closest form"
+            hx-target="#lista_corridas"
+            hx-swap="innerHTML">
+        + Adicionar corrida
+    </button>
+
+    <hr>
+    <h5>Instrumentos</h5>
+
+    <div id="lista_instrumentos">
+        {% include '_instrumentos.html' %}
+    </div>
+    
+    <button type="button"
+            class="btn btn-sm btn-outline-secondary mb-3"
+            hx-post="{{ url_for('nova_linha_instrumento') }}"
+            hx-include="closest form"
+            hx-target="#lista_instrumentos"
+            hx-swap="innerHTML">
+        + Adicionar instrumento
+    </button>
+    </div>
+    </div>
+
+    <hr>
+
+<div class="form-check mb-2">
+    {{ form.houve_nao_conformidade(class="form-check-input",
+                                   data_bs_toggle="collapse",
+                                   data_bs_target="#div_rpnc") }}
+    {{ form.houve_nao_conformidade.label(class="form-check-label") }}
+</div>
+
+
+    <div class="collapse" id="div_rpnc">
+        <div class="row">
+            <div class="col-6">
+            {{ form.rpnc.label(class="form-label") }}
+            {{ form.rpnc(class="form-control") }}
+            </div>
+            <div class="col-3">
+            {{ form.pecas_reprovadas.label(class="form-label") }}
+            {{ form.pecas_reprovadas(class="form-control") }}
+            </div>
+             <div class="col-3">
+            {{ form.pecas_aprovadas.label(class="form-label") }}
+            {{ form.pecas_aprovadas(class="form-control") }}
+            </div>
+        </div>
+    </div>
+
+</form>
+

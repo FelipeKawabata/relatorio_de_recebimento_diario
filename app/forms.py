@@ -57,6 +57,7 @@ class ConferenciaForm(FlaskForm):
     processo_id = SelectField('Processo/Estado', coerce=int)
     material_id = SelectField('Material', coerce=int)
     plano_controle_id = SelectField('Plano de controle', coerce=int)
+    houve_nao_conformidade = BooleanField('Houve não conformidade')
     analise_certificado = BooleanField('Análise de certificado')
     analise_visual = BooleanField('Análise visual')
     identif_e_rastreabilidade = BooleanField(

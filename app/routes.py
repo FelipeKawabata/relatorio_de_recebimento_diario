@@ -1,19 +1,15 @@
-from flask import render_template, url_for, request, jsonify, redirect, session, flash
+from flask import render_template, url_for, request, redirect, session, flash, make_response
 from app import app, db
 from app.auth import autenticar_no_protheus, ProtheusIndisponivel, login_obrigatorio
 from app.models import Recebimento, Processo, GrupoMaterial, Material, PlanoControle, ListaInstrumentos
-from app.metodos import lista_tabela, adicionar_processo, adicionar_grupo_material, adicionar_material
-from app.metodos import adicionar_plano_de_controle, adicionar_instrumento
-from app.forms import ProcessoForm, GrupoMaterialForm, MaterialForm, PlanoControleForm, ListaInstrumentosForm
-from sqlalchemy.exc import IntegrityError
+from app.metodos import lista_tabela, adicionar_processo, adicionar_grupo_material, adicionar_material, montar_choices
+from app.metodos import adicionar_plano_de_controle, adicionar_instrumento, procurar_pedido_de_compra, adicionar_recebimento
+from app.forms import ProcessoForm, GrupoMaterialForm, MaterialForm, PlanoControleForm, ListaInstrumentosForm, ConferenciaForm, InstrumentoMedicaoForm
 
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/')
 @login_obrigatorio
 def homepage():
-    if request.method == 'POST':
-        pass
-
     data = '2026-07-14'
 
     linhas = db.session.scalars(
@@ -24,6 +20,90 @@ def homepage():
     ).all()
 
     return render_template('index.html', linhas=linhas)
+
+
+@app.post('/recebimento/notas')
+@login_obrigatorio
+def buscar_notas():
+    pedido_de_compra = request.form.get('pedido_de_compra', '')
+
+    linhas = procurar_pedido_de_compra(pedido_de_compra)
+
+    if linhas is None:
+        return render_template('_lista_nfs.html',
+                               erro='Formato inválido. Use o formato ######/####')
+
+    if not linhas:
+        return render_template('_lista_nfs.html',
+                               erro=f'Nada encontrado para o pedido {pedido_de_compra}')
+
+    return render_template('_lista_nfs.html', linhas=linhas)
+
+
+@app.post('/recebimento/conferencia')
+@login_obrigatorio
+def escolher_nota():
+    linha = db.session.get(Recebimento, (request.form.get('pedido'),
+                                         request.form.get('item'),
+                                         request.form.get('nota_fiscal')))
+
+    if linha is None:
+        return '<p class="text-danger">Recebimento não encontrado.</p>'
+
+    form = ConferenciaForm(formdata=None,
+                           pedido=linha.pedido,
+                           item=linha.item,
+                           nota_fiscal=linha.nota_fiscal,
+                           qt_total=int(linha.quantidade))
+    montar_choices(form)
+
+    resposta = make_response(render_template('_form_recebimento.html',
+                                             form=form, linha=linha))
+    resposta.headers['HX-Trigger-After-Swap'] = 'abrirModalConferencia'
+    return resposta
+
+
+@app.post('/recebimento')
+@login_obrigatorio
+def gravar_recebimento():
+
+    dados = request.form.copy()
+
+    if not dados.get('houve_nao_conformidade'):
+        dados['pecas_reprovadas'] = '0'
+        dados['pecas_aprovadas'] = dados.get('qt_total', '')
+        dados['rpnc'] = ''
+
+    form = ConferenciaForm()
+    montar_choices(form)
+
+    if form.validate_on_submit() and adicionar_recebimento(form):
+        resposta = make_response('')
+        resposta.headers['HX-Trigger'] = 'recebimentoGravado'
+        return resposta
+
+    linha = db.session.get(Recebimento, (form.pedido.data,
+                                         form.item.data,
+                                         form.nota_fiscal.data))
+
+    return render_template('_form_recebimento.html', form=form, linha=linha)
+
+
+@app.post('/recebimento/corridas')
+@login_obrigatorio
+def nova_linha_corrida():
+    form = ConferenciaForm()
+    form.corridas.append_entry()
+    return render_template('_corridas.html', form=form)
+
+
+@app.post('/recebimento/instrumentos')
+@login_obrigatorio
+def nova_linha_instrumento():
+    form = ConferenciaForm()
+    form.instrumentos.append_entry()
+    montar_choices(form)
+    return render_template('_instrumentos.html', form=form)
 
 
 @app.route("/login", methods=["GET", "POST"])

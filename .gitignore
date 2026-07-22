@@ -1,28 +1,28 @@
-# Ambiente virtual (NÃO portável entre máquinas — use requirements.txt)
+
 .venv/
 venv/
 env/
 
-# Variáveis de ambiente — CONTÉM SENHAS, nunca commitar
 .env
 .env.*
 !.env.example
 
-# Cache e bytecode do Python
 __pycache__/
 *.py[cod]
 *$py.class
 
-# Distribuição / build
 *.egg-info/
 dist/
 build/
 
-# IDE / editores
 .vscode/
 .idea/
 *.swp
 
-# Sistema operacional
 .DS_Store
 Thumbs.db
+
+'RO-PR-051_Relatório_Diário_de_Recebimento (2026) (novo)'
+'RO-PR-051_Relatório_Diário_de_Recebimento (2026) (novo).xslx'
+RO-PR-051_Relatório_Diário_de_Recebimento (2026) (novo)
+RO-PR-051_Relatório_Diário_de_Recebimento (2026) (novo).xslx

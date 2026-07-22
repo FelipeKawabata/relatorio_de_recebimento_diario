@@ -6,37 +6,9 @@
 
 <div class="container mt-2" id="div_filters">
     <div class="row" id="row_over_filter_index">
-        <button type="button" class="categoria_post_button" data-bs-toggle="modal" data-bs-target="#janela_modal_recebimento">
+        <button type="button" class="id_abrir_modal_pedido_de_compra" data-bs-toggle="modal" data-bs-target="#janela_modal_recebimento">
         Adicionar recebimento
         </button>
-    </div>
-    <div class="row">
-        <p>Paragrafo de teste</p>
-    </div>
-</div>
-
-<div class="modal modal-sm" id="janela_modal_recebimento">
-    <div class="modal-dialog">
-        <div class="modal-content">
-
-            <div class="modal-header">
-                <h3 class="modal-title">Adicionar recebimento</h3>
-                <button class="btn btn-close" data-bs-dismiss="modal"></button>
-            </div>
-
-            <div class="modal-body">
-                <form method="post">
-                    <label class="form-label">Pedido de compra</label>
-                    <input type="text" name="PEDIDO_DE_COMPRA" class="form-control">
-                    <button type="submit" id="pedido_de_compra_post_button">OK</button>
-                </form>
-            </div>
-
-            <div class="modal-footer">
-                <p>teste</p>
-            </div>
-
-        </div>
     </div>
 </div>
 
@@ -77,6 +49,60 @@
     </table>
 
 
+    </div>
+</div>
+
+<!-- ETAPA 1 - PEDIDO DE COMPRA -->
+
+<div class="modal fade" id="janela_modal_recebimento" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h3 class="modal-title">Adicionar recebimentos</h3>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                <form hx-post="{{ url_for('buscar_notas') }}"
+                      hx-target="#resultado_busca_nf"
+                      hx-swap="innerHTML">
+
+                    <label for="pedido_de_compra" class="form-label">Pedido de compra</label>
+                    <input type="text"
+                           id="pedido_de_compra"
+                           name="pedido_de_compra"
+                           class="form-control"
+                           placeholder="######-####">
+                    <button type="submit" class="btn btn-primary mt-2">OK</button>
+
+                </form>
+
+                <div id="resultado_busca_nf"></div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- ETAPA 2 - CHECKLIST DE CONFERÊNCIA -->
+
+<div class="modal fade" id="modal_recebimento" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h3 class="modal-title">Checklist de recebimento</h3>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body" id="corpo_modal_conferencia">
+            </div>
+
+            <div class="modal-footer">
+            </div>
+
+        </div>
     </div>
 </div>
 

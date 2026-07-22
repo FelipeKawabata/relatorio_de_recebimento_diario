@@ -1,0 +1,30 @@
+{% for entrada in form.corridas %}
+
+<div class="row g-2 mb-2 linha_corrida">
+    <div class="col-4">
+        {{ entrada.corrida.label(class="form-label") }}
+        {{ entrada.corrida(class="form-control") }}
+        {% for erro in entrada.corrida.errors %}
+            <div class="text-danger small">{{ erro }}</div>
+        {% endfor %}
+    </div>
+
+    <div class="col-7">
+        {{ entrada.qtd_corrida.label(class="form-label") }}
+        {{ entrada.qtd_corrida(class="form-control") }}
+        {% for erro in entrada.qtd_corrida.errors %}
+            <div class="text-danger small">{{ erro }}</div>
+        {% endfor %}
+    </div>
+
+    <div class="col-1 d-flex align-items-end">
+        <button type="button" class="btn btn-sm btn-outline-danger"
+        onclick="this.closest('.linha_corrida').remove()">X</button>
+    </div>
+</div>
+
+{% endfor %}
+
+{% for erro in form.corridas.errors if erro is string %}
+    <div class="text-danger small">{{ erro }}</div>
+{% endfor %}
