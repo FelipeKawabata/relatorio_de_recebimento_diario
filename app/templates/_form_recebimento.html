@@ -10,22 +10,37 @@
     {{ form.item(type="hidden") }}
     {{ form.nota_fiscal(type="hidden") }}
 
-        <dl class="row mb-0">
-        <dt class="col-5">Pedido / Item</dt>
-        <dd class="col-7">{{ linha.pedido }} / {{ linha.item }}</dd>
+    <div class="container">
+        <dl>
+        <div class="container">
 
-        <dt class="col-5">Nota fiscal</dt>
-        <dd class="col-7">{{ linha.nota_fiscal }}</dd>
+            <div class="row">
+                <dt class="col-3">Pedido/Item:</dt>
+                <dd class="col-3">{{ linha.pedido }} / {{ linha.item }}</dd>
+                
+                <dt class="col-3">Nota fiscal:</dt>
+                <dd class="col-3">{{ linha.nota_fiscal }}</dd>
+            </div>
+            <div class="row">
+                <dt class="col-3">Produto:</dt>
+                <dd class="col-3">{{ linha.produto }} — {{ linha.descricao }}</dd>
+                
 
-        <dt class="col-5">Produto</dt>
-        <dd class="col-7">{{ linha.produto }} — {{ linha.descricao }}</dd>
+                <dt class="col-3">Quantidade:</dt>
+                <dd class="col-3">{{ linha.quantidade }}</dd>
+            </div>
+        </div>
+  
+        <div class="container">
+            <div class="row">
+                <dt class="col-3">Fornecedor:</dt>
+                <dd class="col-3">{{ linha.nome_fornecedor }}</dd>
+            </div>
+        </div>
 
-        <dt class="col-5">Quantidade</dt>
-        <dd class="col-7">{{ linha.quantidade }}</dd>
-
-        <dt class="col-5">Fornecedor</dt>
-        <dd class="col-7">{{ linha.nome_fornecedor }}</dd>
+        </div>
         </dl>
+    </div>
 
     <hr>
     <div class="row">
@@ -33,7 +48,7 @@
 
     <div class="row">
         <div class="col-6">
-        {{ form.qt_total.label(class="form-label") }} {{ form.qt_total(class="form-control") }}
+        {{ form.qt_total.label(class="form-label") }} {{ form.qt_total(class="form-control bg-body-secondary",readonly=true) }}
         </div>
         <div class="col-6">
         {{ form.certificado.label(class="form-label") }} {{ form.certificado(class="form-control") }}

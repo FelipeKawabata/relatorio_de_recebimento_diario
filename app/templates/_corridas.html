@@ -1,7 +1,7 @@
 {% for entrada in form.corridas %}
 
 <div class="row g-2 mb-2 linha_corrida">
-    <div class="col-4">
+    <div class="col-5">
         {{ entrada.corrida.label(class="form-label") }}
         {{ entrada.corrida(class="form-control") }}
         {% for erro in entrada.corrida.errors %}
@@ -9,7 +9,7 @@
         {% endfor %}
     </div>
 
-    <div class="col-7">
+    <div class="col-6">
         {{ entrada.qtd_corrida.label(class="form-label") }}
         {{ entrada.qtd_corrida(class="form-control") }}
         {% for erro in entrada.qtd_corrida.errors %}
