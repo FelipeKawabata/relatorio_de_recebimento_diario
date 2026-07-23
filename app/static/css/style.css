@@ -214,6 +214,16 @@ a.class_botao_logout:hover {
     margin: 0 auto;
 }
 
+#index_table_body{
+    font-size: 16px;
+}
+
+#index_table_head td:nth-child(7) {
+    min-width: 120px;
+}
+
+
+
 /* CONFIGURAÇÕES DA DIV COM FILTRO E BOTÃO DE ADICIONAR RECEBIMENTO */
 
 #div_filters{

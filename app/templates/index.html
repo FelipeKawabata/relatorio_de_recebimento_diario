@@ -36,7 +36,7 @@
                 <td>Detalhes/editar</td>
             </tr>
         </thead>
-        <tbody class="align-middle text-center">
+        <tbody class="align-middle text-center" id="index_table_body">
 
             {% for linha in linhas %}
             <tr>
@@ -52,10 +52,11 @@
                     {{ linha.Conferencia.rpnc }}
                     {% endif %}
                 </td>
-                   <td>{% if linha.Conferencia.rpnc is none %}
+                   <td class="{{ 'text-danger fw-bold' if linha.Conferencia.rpnc else '' }}">
+                    {% if linha.Conferencia.rpnc is none %}
                             -
                     {% else %}
-                    {{ linha.Conferencia.pecas_reprovadas }}
+                    {{ "%.1f"|format(linha.Conferencia.pecas_reprovadas) }}
                     {% endif %}
                 </td>
                 <td><a href="">Detalhes</a></td>
