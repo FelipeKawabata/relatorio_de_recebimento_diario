@@ -59,10 +59,18 @@
     {{ form.plano_controle_id.label(class="form-label") }} {{ form.plano_controle_id(class="form-control") }}
     </div>
     <div class="col-6">
-    {{ form.processo_id.label(class="form-label") }} {{ form.processo_id(class="form-control") }}
+    {{ form.processo_id.label(class="form-label") }} {{ form.processo_id(class="form-control",
+                                                        **{'hx-post': url_for('checklist'),
+                                                           'hx-target': '#checklist',
+                                                           'hx-swap': 'innerHTML',
+                                                           'hx-include': 'closest form'}) }}
     </div>
     </div>
-    {{ form.material_id.label(class="form-label") }} {{ form.material_id(class="form-control") }}
+    {{ form.material_id.label(class="form-label") }} {{ form.material_id(class="form-control",
+                                                        **{'hx-post': url_for('checklist'),
+                                                           'hx-target': '#checklist',
+                                                           'hx-swap': 'innerHTML',
+                                                           'hx-include': 'closest form'}) }}
 
     </div>
     <div class="col-6">
@@ -101,6 +109,14 @@
 
     <hr>
 
+    <h5>Checklist de inspeção</h5>
+
+    <div id="checklist" class="row mb-3">
+        {% include '_checklist.html' %}
+    </div>
+
+    <hr>
+
 <div class="form-check mb-2">
     {{ form.houve_nao_conformidade(class="form-check-input",
                                    data_bs_toggle="collapse",
@@ -126,5 +142,9 @@
         </div>
     </div>
 
+    <div class="container text-center align-items display-flex mt-3">
+        {{ form.enviar(id="id_post_recebimento_button") }}
+    </div>
+    
 </form>
 

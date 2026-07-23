@@ -1,6 +1,6 @@
 {% for entrada in form.instrumentos %}
 
-<div class="row g-2-mb-2 linha_instrumentos">
+<div class="row g-2 mb-2 linha_instrumentos">
     <div class="col-11">
         {{ entrada.instrumento_id.label(class="form-label") }}
         {{ entrada.instrumento_id(class="form-select")}}
@@ -11,7 +11,7 @@
 
     <div class="col-1 d-flex align-items-end">
         <button type="button" class="btn btn-sm btn-outline-danger"
-        onclick="this.closest(';linha_instrumentos').remove()">X</button>
+        onclick="this.closest('.linha_instrumentos').remove()">X</button>
     </div>
 </div>
 

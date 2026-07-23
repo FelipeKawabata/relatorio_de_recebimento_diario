@@ -1,23 +1,23 @@
 from flask import render_template, url_for, request, redirect, session, flash, make_response
 from app import app, db
 from app.auth import autenticar_no_protheus, ProtheusIndisponivel, login_obrigatorio
-from app.models import Recebimento, Processo, GrupoMaterial, Material, PlanoControle, ListaInstrumentos
-from app.metodos import lista_tabela, adicionar_processo, adicionar_grupo_material, adicionar_material, montar_choices
-from app.metodos import adicionar_plano_de_controle, adicionar_instrumento, procurar_pedido_de_compra, adicionar_recebimento
+from app.models import Recebimento, Processo, GrupoMaterial, Material, PlanoControle, ListaInstrumentos, Conferencia
+from app.metodos import lista_tabela, adicionar_processo, adicionar_grupo_material, adicionar_material, montar_choices, processo_sugerido
+from app.metodos import adicionar_plano_de_controle, adicionar_instrumento, procurar_pedido_de_compra, adicionar_recebimento, checks_do_form
 from app.forms import ProcessoForm, GrupoMaterialForm, MaterialForm, PlanoControleForm, ListaInstrumentosForm, ConferenciaForm, InstrumentoMedicaoForm
+from sqlalchemy import and_, collate
 
 
 @app.route('/')
 @login_obrigatorio
 def homepage():
-    data = '2026-07-14'
 
-    linhas = db.session.scalars(
-        db.select(Recebimento)
-        .where(Recebimento.dt_emissao == data)
-        .order_by(Recebimento.pedido)
-        .limit(100)
-    ).all()
+    linhas = db.session.execute(
+        db.select(Conferencia, Recebimento).join(Recebimento, and_(
+            collate(Recebimento.pedido,
+                    "DATABASE_DEFAULT") == Conferencia.pedido,
+            collate(Recebimento.item, "DATABASE_DEFAULT") == Conferencia.item,
+            collate(Recebimento.nota_fiscal, "DATABASE_DEFAULT") == Conferencia.nota_fiscal)))
 
     return render_template('index.html', linhas=linhas)
 
@@ -54,11 +54,13 @@ def escolher_nota():
                            pedido=linha.pedido,
                            item=linha.item,
                            nota_fiscal=linha.nota_fiscal,
-                           qt_total=int(linha.quantidade))
+                           qt_total=int(linha.quantidade),
+                           processo_id=processo_sugerido(linha.produto))
     montar_choices(form)
 
     resposta = make_response(render_template('_form_recebimento.html',
-                                             form=form, linha=linha))
+                                             form=form, linha=linha,
+                                             checks=checks_do_form(form)))
     resposta.headers['HX-Trigger-After-Swap'] = 'abrirModalConferencia'
     return resposta
 
@@ -67,6 +69,10 @@ def escolher_nota():
 @login_obrigatorio
 def gravar_recebimento():
 
+    # request.form é imutável; a cópia é o que permite preencher os campos
+    # que ficaram escondidos no collapse. O form PRECISA ler daqui — sem o
+    # formdata=dados ele volta a ler o request.form original e o ajuste
+    # abaixo não tem efeito nenhum.
     dados = request.form.copy()
 
     if not dados.get('houve_nao_conformidade'):
@@ -74,7 +80,7 @@ def gravar_recebimento():
         dados['pecas_aprovadas'] = dados.get('qt_total', '')
         dados['rpnc'] = ''
 
-    form = ConferenciaForm()
+    form = ConferenciaForm(formdata=dados)
     montar_choices(form)
 
     if form.validate_on_submit() and adicionar_recebimento(form):
@@ -86,7 +92,8 @@ def gravar_recebimento():
                                          form.item.data,
                                          form.nota_fiscal.data))
 
-    return render_template('_form_recebimento.html', form=form, linha=linha)
+    return render_template('_form_recebimento.html', form=form, linha=linha,
+                           checks=checks_do_form(form))
 
 
 @app.post('/recebimento/corridas')
@@ -104,6 +111,16 @@ def nova_linha_instrumento():
     form.instrumentos.append_entry()
     montar_choices(form)
     return render_template('_instrumentos.html', form=form)
+
+
+@app.post('/recebimento/checklist')
+@login_obrigatorio
+def checklist():
+    form = ConferenciaForm()
+    montar_choices(form)
+
+    return render_template('_checklist.html', form=form,
+                           checks=checks_do_form(form))
 
 
 @app.route("/login", methods=["GET", "POST"])

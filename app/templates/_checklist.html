@@ -1,0 +1,12 @@
+{% for nome in checks %}
+<div class="col-6">
+    <div class="form-check">
+        {{ form[nome](class="form-check-input") }}
+        {{ form[nome].label(class="form-check-label") }}
+    </div>
+</div>
+{% else %}
+<p class="text-body-secondary mb-0">
+    Selecione o material e o processo para montar o checklist.
+</p>
+{% endfor %}

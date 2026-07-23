@@ -34,7 +34,6 @@ def procurar_pedido_de_compra(pedido_de_compra):
             db.select(Recebimento)
             .where(Recebimento.pedido == pedido, Recebimento.item == item)
             .order_by(Recebimento.nota_fiscal)
-            .limit(100)
         ).all()
     except SQLAlchemyError:
         current_app.logger.exception('Falha ao buscar %s/%s', pedido, item)
@@ -56,21 +55,23 @@ def adicionar_recebimento(form):
         plano_controle_id=form.plano_controle_id.data or None,
         processo_id=form.processo_id.data or None,
         material_id=form.material_id.data or None,
-        analise_certificado=form.analise_certificado.data,
-        analise_visual=form.analise_visual.data,
-        identif_e_rastreabilidade=form.identif_e_rastreabilidade.data,
-        dimensional=form.dimensional.data,
-        dureza_sha=form.dureza_sha.data,
-        id_ligas=form.id_ligas.data,
-        dureza_tt=form.dureza_tt.data,
-        ranhura=form.ranhura.data,
-        fios18_21=form.fios18_21.data,
-        rugosidade_acabamento=form.rugosidade_acabamento.data,
         pecas_aprovadas=form.pecas_aprovadas.data,
         pecas_reprovadas=form.pecas_reprovadas.data,
         rpnc=form.rpnc.data,
         responsavel=form.responsavel.data,
     )
+
+    # Checkbox que não foi renderizado chega no WTForms como False, e False
+    # significa "verifiquei e reprovou" — diferente de NULL, que é "não se
+    # aplica". Por isso a regra é recalculada AQUI, no servidor, a partir do
+    # material e do processo que estão sendo gravados: o que o cliente mandou
+    # não é confiável (o usuário pode ter trocado o material depois que os
+    # checkboxes foram desenhados).
+    aplicaveis = set(checks_do_form(form))
+
+    for nome in ORDEM_CHECKS:
+        setattr(conferencia, nome,
+                getattr(form, nome).data if nome in aplicaveis else None)
 
     for entrada in form.corridas:
         conferencia.corridas.append(
@@ -163,3 +164,181 @@ def adicionar_plano_de_controle(nome, descricao):
     except IntegrityError:
         db.session.rollback()
         flash('Este plano de controle já está cadastrado')
+
+# FUNÇÕES PARA DEFINIDIR QUAL OS CHECKLISTS DEVEM APARECER
+
+
+def definir_processo(texto: str) -> str:
+
+    # Recebimento.produto é nullable e re.search estoura com None
+    if not texto:
+        return 'OUT'
+
+    if texto == 'BN1500000000000':
+        return 'OUT'
+
+    PADROES = {
+        r'^B{1}[A-Z]{1}1[0-1]': 'USI',
+        r'^B{1}[A-Z]{1}2[0-2]': 'PNT',
+        r'^B{1}[A-Z]{1}2[8-9]': 'REV',
+        r'^B{1}[A-Z]{1}3[0-9]': 'REV',
+        r'^B{1}[A-Z]{1}50': 'VUL',
+        r'^B{1}[A-Z]{1}4[0-1]': 'TT',
+        r'^B{1}[A-Z]{1}42': 'REV',
+        r'^B{1}[A-Z]{1}5[5-6]': 'POL',
+        r'^[^B]{1}.{7}1': 'BRT',
+        r'^[^B]{1}.{7}[268]': 'S01',
+        r'^[^B]{1}.{7}[4-5]': 'ACB'
+    }
+
+    for padrao, resultado in PADROES.items():
+        if re.search(padrao, texto):
+            return resultado
+
+    return 'OUT'
+
+
+# Ponte entre a sigla que o regex devolve e o nome cadastrado em RDR_PROCESSO.
+# A busca é por NOME, não por id: assim, cadastrar um processo novo pela tela
+# de categorias já faz o palpite funcionar, sem mexer em código.
+SIGLA_PARA_PROCESSO = {
+    'USI': 'Usinagem',
+    'PNT': 'Pintura',
+    'REV': 'Revestimento',
+    'TT':  'Tratamento térmico',
+    'POL': 'Polimento',
+    'BRT': 'Bruto',
+    'S01': 'Semi-acabado',
+    'ACB': 'Acabado',
+    'VUL': 'Vulcanização',
+}
+
+
+def processo_sugerido(produto: str) -> int:
+    """Id do Processo sugerido pelo código do produto; 0 se não souber.
+
+    O 0 é o valor do '— selecione —' montado em montar_choices(), então
+    'OUT' (regex não reconheceu) deixa o select vazio para o usuário
+    escolher na mão — que é exatamente o comportamento desejado.
+    """
+    nome = SIGLA_PARA_PROCESSO.get(definir_processo(produto))
+
+    if nome is None:
+        return 0
+
+    processo = db.session.scalar(
+        db.select(Processo).where(Processo.nome == nome))
+
+    return processo.id if processo else 0
+
+
+# Ordem em que os checkboxes aparecem na tela. frozenset não tem ordem
+# estável, então a regra decide QUAIS aparecem e esta lista decide ONDE.
+ORDEM_CHECKS = ['analise_certificado', 'analise_visual',
+                'identif_e_rastreabilidade', 'dimensional',
+                'id_ligas', 'dureza_sha', 'dureza_tt',
+                'ranhura', 'fios18_21', 'rugosidade_acabamento']
+
+# Blocos reaproveitados nas regras abaixo
+BASE = frozenset({'analise_certificado', 'analise_visual',
+                  'identif_e_rastreabilidade', 'dimensional'})
+USINAGEM = frozenset({'ranhura', 'fios18_21', 'rugosidade_acabamento'})
+LIGA = frozenset({'id_ligas'})
+DUREZA_TT = frozenset({'dureza_tt'})
+DUREZA_SHA = frozenset({'dureza_sha'})
+ACABAMENTO = frozenset({'rugosidade_acabamento'})
+
+# Chave: (nome do grupo do material, nome do processo). As strings precisam
+# bater com RDR_GRUPO_MATERIAL.nome e RDR_PROCESSO.nome — use
+# validar_regras_checklist() depois de mexer aqui.
+REGRAS_CHECKLIST = {
+    # ---------- Aço: identificação de liga enquanto o metal está exposto
+    ('Aço', 'Bruto'):                BASE | LIGA,
+    ('Aço', 'Usinagem'):             BASE | LIGA | USINAGEM,
+    ('Aço', 'Semi-acabado'):         BASE | LIGA | USINAGEM,
+    ('Aço', 'Acabado'):              BASE | LIGA | USINAGEM,
+    ('Aço', 'Tratamento térmico'):   BASE | LIGA | DUREZA_TT,
+    ('Aço', 'Polimento'):            BASE | LIGA | ACABAMENTO,
+    ('Aço', 'Revestimento'):         BASE,
+    ('Aço', 'Pintura'):              BASE,
+
+    # ---------- Metais não ferrosos: mesma lógica, sem id_ligas
+    ('Metais', 'Bruto'):              BASE,
+    ('Metais', 'Usinagem'):           BASE | USINAGEM,
+    ('Metais', 'Semi-acabado'):       BASE | USINAGEM,
+    ('Metais', 'Acabado'):            BASE | USINAGEM,
+    ('Metais', 'Tratamento térmico'): BASE | DUREZA_TT,
+    ('Metais', 'Polimento'):          BASE | ACABAMENTO,
+    ('Metais', 'Revestimento'):       BASE,
+    ('Metais', 'Pintura'):            BASE,
+
+    # ---------- Polímeros: dureza Shore A no lugar de liga/dureza TT.
+    # Não levam ranhura nem 18 fios — são checks de face de flange metálica.
+    ('Polímeros', 'Bruto'):         BASE | DUREZA_SHA,
+    ('Polímeros', 'Vulcanização'):  BASE | DUREZA_SHA,
+    ('Polímeros', 'Usinagem'):      BASE | DUREZA_SHA | ACABAMENTO,
+    ('Polímeros', 'Semi-acabado'):  BASE | DUREZA_SHA,
+    ('Polímeros', 'Acabado'):       BASE | DUREZA_SHA,
+
+    # ---------- Grupos de serviço: o item recebido é o próprio tratamento
+    ('Tratamento Térmico', 'Tratamento térmico'):    BASE | DUREZA_TT,
+    ('Pintura', 'Pintura'):                          BASE,
+    ('Revestimentos e Acabamentos', 'Revestimento'): BASE,
+    ('Revestimentos e Acabamentos', 'Polimento'):    BASE | ACABAMENTO,
+}
+
+
+def checks_aplicaveis(grupo_material: str, processo: str) -> frozenset[str]:
+    """Conjunto de checks válidos para o par (grupo, processo).
+
+    Aceita None nos dois argumentos (material ou processo ainda não
+    escolhido no formulário) e cai no BASE.
+    """
+    return REGRAS_CHECKLIST.get((grupo_material, processo), BASE)
+
+
+def checks_ordenados(grupo_material: str, processo: str) -> list[str]:
+    """Mesma regra, já na ordem de exibição — é o que o template consome."""
+    aplicaveis = checks_aplicaveis(grupo_material, processo)
+    return [nome for nome in ORDEM_CHECKS if nome in aplicaveis]
+
+
+def checks_do_form(form) -> list[str]:
+    """Resolve material_id/processo_id do form e devolve os checks da regra.
+
+    É o salto id -> nome que as rotas precisam. Mantém checks_aplicaveis()
+    sem contato com o banco, do mesmo jeito que definir_processo().
+    """
+    material = db.session.get(Material, form.material_id.data or 0)
+    processo = db.session.get(Processo, form.processo_id.data or 0)
+
+    return checks_ordenados(
+        material.grupo.nome if material and material.grupo else None,
+        processo.nome if processo else None,
+    )
+
+
+def validar_regras_checklist() -> dict[str, list[str]]:
+    """Confere se as strings usadas em REGRAS_CHECKLIST existem no banco.
+
+    Erro de acento ou de maiúscula não estoura em runtime: a regra
+    simplesmente nunca casa e o checklist aparece com o BASE, sem aviso.
+    Rode isto depois de editar as regras ou de renomear algo pela tela.
+    """
+    grupos_banco = {g.nome for g in lista_tabela(GrupoMaterial)}
+    processos_banco = {p.nome for p in lista_tabela(Processo)}
+
+    grupos_regra = {chave[0] for chave in REGRAS_CHECKLIST}
+    processos_regra = {chave[1] for chave in REGRAS_CHECKLIST}
+
+    colunas = set(Conferencia.__table__.columns.keys())
+    checks_regra = {nome for checks in REGRAS_CHECKLIST.values()
+                    for nome in checks} | set(ORDEM_CHECKS)
+
+    return {
+        'grupos_inexistentes': sorted(grupos_regra - grupos_banco),
+        'processos_inexistentes': sorted(processos_regra - processos_banco),
+        'checks_inexistentes': sorted(checks_regra - colunas),
+        'grupos_sem_regra': sorted(grupos_banco - grupos_regra),
+        'processos_sem_regra': sorted(processos_banco - processos_regra),
+    }

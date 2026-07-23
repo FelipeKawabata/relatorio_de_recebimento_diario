@@ -2,17 +2,24 @@
 
 {% block titulo %}Hello world!{% endblock %}
 
-{% block content %}
-
-<div class="container mt-2" id="div_filters">
-    <div class="row" id="row_over_filter_index">
-        <button type="button" class="id_abrir_modal_pedido_de_compra" data-bs-toggle="modal" data-bs-target="#janela_modal_recebimento">
+{% block botao_index %}
+       <button type="button" class="class_link_button" data-bs-toggle="modal" data-bs-target="#janela_modal_recebimento">
         Adicionar recebimento
         </button>
+{% endblock %}
+  
+{% block content %}
+
+<div class="container-fluid mt-2" id="div_filters">
+    <div class="row py-2" id="row_over_filter_index">
+        
+    </div>
+    <div class="row py-2">
+
     </div>
 </div>
 
-<div class="container p-1">
+<div class="container-fluid p-1">
     <div id="table_index">
 
     <table class="table table-hover">
@@ -24,22 +31,34 @@
                 <td>Quantidade</td>
                 <td>Fornecedor</td>
                 <td>Data emissão</td>
-                <td>Nota fiscal</td>
-                <td>Especificação</td>
+                <td>RPNC</td>
+                <td>Peças reprovadas</td>
+                <td>Detalhes/editar</td>
             </tr>
         </thead>
         <tbody class="align-middle text-center">
 
             {% for linha in linhas %}
             <tr>
-                <td>{{ linha.pedido + '/' + linha.item }}</td>
-                <td>{{ linha.produto }}</td>
-                <td>{{ linha.descricao }}</td>
-                <td>{{ linha.quantidade }}</td>
-                <td>{{ linha.nome_fornecedor }}</td>
-                <td>{{ linha.dt_emissao }}</td>
-                <td>{{ linha.nota_fiscal }}</td>
-                <td>{{ linha.b1_iaespec }}</td>
+                <td>{{ linha.Conferencia.pedido + '/' + linha.Conferencia.item }}</td>
+                <td>{{ linha.Recebimento.produto }}</td>
+                <td>{{ linha.Recebimento.descricao }}</td>
+                <td>{{ linha.Recebimento.quantidade }}</td>
+                <td>{{ linha.Recebimento.nome_fornecedor }}</td>
+                <td>{{ linha.Recebimento.dt_emissao.strftime('%d/%m/%Y') }}</td>
+                <td>{% if linha.Conferencia.rpnc is none %}
+                            -
+                    {% else %}
+                    {{ linha.Conferencia.rpnc }}
+                    {% endif %}
+                </td>
+                   <td>{% if linha.Conferencia.rpnc is none %}
+                            -
+                    {% else %}
+                    {{ linha.Conferencia.pecas_reprovadas }}
+                    {% endif %}
+                </td>
+                <td><a href="">Detalhes</a></td>
             </tr>
             {% else %}
                 <tr><td>Essa lista está vazia</td></tr>
@@ -63,7 +82,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
 
-            <div class="modal-body">
+            <div class="modal-body text-center">
                 <form hx-post="{{ url_for('buscar_notas') }}"
                       hx-target="#resultado_busca_nf"
                       hx-swap="innerHTML">
@@ -74,7 +93,7 @@
                            name="pedido_de_compra"
                            class="form-control"
                            placeholder="######-####">
-                    <button type="submit" class="btn btn-primary mt-2">OK</button>
+                    <button type="submit" class="btn btn-primary mt-2" id="button_add_recebimento">Procurar</button>
 
                 </form>
 
@@ -97,9 +116,6 @@
             </div>
 
             <div class="modal-body" id="corpo_modal_conferencia">
-            </div>
-
-            <div class="modal-footer">
             </div>
 
         </div>

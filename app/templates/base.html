@@ -38,6 +38,11 @@
                     Gerenciar categorias
                 </a>
             </div>
+
+            <div class="col-auto p-1 m-0">
+                {% block botao_index %}{% endblock %}
+            </div>
+            
             <div class="col-auto p-0 m-0 ms-auto">
                 <div class="d-flex align-items-center" id="id_div_botao_logout">
                     <a href="{{ url_for('logout' )}}" class="class_botao_logout">Logout</a>

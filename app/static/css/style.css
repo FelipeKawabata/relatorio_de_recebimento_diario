@@ -57,7 +57,7 @@ html, body {
     min-height: 55px;
     background-color: rgb(var(--azul_escuro_ia));
     align-items: center;
-    padding: 8px 2%;
+    padding: 8px 3%;
     margin: 1px;
 }
 
@@ -209,7 +209,9 @@ a.class_botao_logout:hover {
 
 #table_index{
     border: 1px groove rgb(var(--azul_escuro_ia));
-    border-radius: 5px;
+    border-radius: 3px;
+    max-width: 95%;
+    margin: 0 auto;
 }
 
 /* CONFIGURAÇÕES DA DIV COM FILTRO E BOTÃO DE ADICIONAR RECEBIMENTO */
@@ -217,6 +219,10 @@ a.class_botao_logout:hover {
 #div_filters{
     border: 2px solid rgb(var(--azul_escuro_ia));
     border-radius: 3px;
+    margin: 0 auto;
+    align-items: center;
+    justify-content: center;
+    max-width: 95%;
 }
 
 #row_over_filter_index{
@@ -234,13 +240,47 @@ a.class_botao_logout:hover {
     max-width: 200px;
 }
 
-#id_abrir_modal_pedido_de_compra{
+.id_abrir_modal_pedido_de_compra{
     background-color: rgb(var(--azul_ia));
     color: white;
     text-decoration: none;
     text-align: center;
     justify-content: center;
     max-width: 200px;
+}
+
+/* CONFIGURAÇÕES DOS MODAIS DO FORMULÁRIO DE RECEBIMENTO */
+
+#id_post_recebimento_button{
+    background-color: rgb(var(--azul_ia));
+    color: white;
+    text-decoration: none;
+    text-align: center;
+    font-size: bold;
+    justify-content: center;
+    max-width: 200px;
+    height: 70px;
+    border: 2px solid rgb(var(--azul_escuro_ia));
+    border-radius: 2px;
+}
+
+.modal-header{
+    background-color: rgb(var(--azul_ia));
+    color: rgb(var(--off_white));
+    text-align: center;
+    align-items: center;
+}
+
+#button_add_recebimento{
+    background-color: rgb(var(--azul_ia));
+    color: rgb(var(--off_white));
+    border: 2px solid rgb(var(--azul_escuro_ia));
+}
+
+#button_nfs{
+    background-color: rgb(var(--azul_ia));
+    color: rgb(var(--off_white));
+    border: 2px solid rgb(var(--azul_escuro_ia));
 }
 
 /*========================= FIM - CONFIGURAÇÕES DE INDEX.HTML ==================== */
@@ -285,9 +325,6 @@ a.class_botao_logout:hover {
 a.categoria_table_button:hover{
     text-decoration:underline;
 }
-
-
-
 
 
 /*========================= FIM - CONFIGURAÇÕES DE CATEGORIAS.HTML ==================== */

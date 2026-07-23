@@ -8,7 +8,7 @@
     <p class="mb-2">Selecione a nota fiscal:</p>
 
     {% for linha in linhas %}
-    <button type="button" class="btn btn-outline-primary w-100 mb-2 text-start"
+    <button type="button" class="btn btn-outline-primary w-100 mb-2 text-start" id="button_nfs"
             hx-post="{{ url_for('escolher_nota') }}"
             hx-vals='{"pedido": "{{ linha.pedido }}",
                       "item": "{{ linha.item }}",
