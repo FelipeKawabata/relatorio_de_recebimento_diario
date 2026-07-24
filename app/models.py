@@ -10,6 +10,7 @@ class ListaInstrumentos(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(30), nullable=False)
     descricao = db.Column(db.String(70), nullable=True)
+    ativo = db.Column(db.Boolean, default=True, nullable=False)
 
     uso_instrumento = relationship(
         'InstrumentoMedicao', back_populates='instrumento')
@@ -43,6 +44,7 @@ class GrupoMaterial(db.Model):
     nome = db.Column(db.String(50), nullable=False)
 
     grupo_origem = relationship('Material', back_populates='grupo')
+    ativo = db.Column(db.Boolean, default=True, nullable=False)
 
     __table_args__ = (db.UniqueConstraint(
         'nome', name='uq_nome_grupo_material'),)
@@ -56,6 +58,7 @@ class Material(db.Model):
     especificacao = db.Column(db.String(40), nullable=False)
     grupo_id = db.Column(db.Integer, ForeignKey(
         'RDR_GRUPO_MATERIAL.id'), nullable=True)
+    ativo = db.Column(db.Boolean, default=True, nullable=False)
 
     origem_material = relationship('Conferencia', back_populates='material')
 
@@ -82,6 +85,7 @@ class Processo(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(50), nullable=False)
+    ativo = db.Column(db.Boolean, default=True, nullable=False)
 
     origem_processo = relationship('Conferencia', back_populates='processo')
 
@@ -117,14 +121,17 @@ class Conferencia(db.Model):
     pecas_reprovadas = db.Column(db.Integer, default=0, nullable=False)
     rpnc = db.Column(db.String(10), default=None, nullable=True)
     responsavel = db.Column(db.String(50), nullable=False)
+    ativo = db.Column(db.Boolean, default=True, nullable=False)
 
     instrumentos = relationship(
-        'InstrumentoMedicao', back_populates='conferencia')
+        'InstrumentoMedicao', back_populates='conferencia',
+        cascade='all, delete-orphan')
     plano_controle = relationship(
         'PlanoControle', back_populates='origem_plano_controle')
     material = relationship(
         'Material', back_populates='origem_material')
-    corridas = relationship('Corrida', back_populates='conferencia')
+    corridas = relationship('Corrida', back_populates='conferencia',
+                            cascade='all, delete-orphan')
     processo = relationship('Processo', back_populates='origem_processo')
 
     __table_args__ = (db.UniqueConstraint('pedido', 'item',
@@ -136,6 +143,7 @@ class PlanoControle(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(30), nullable=False)
     descricao = db.Column(db.String(50))
+    ativo = db.Column(db.Boolean, default=True, nullable=False)
 
     origem_plano_controle = relationship(
         'Conferencia', back_populates='plano_controle')

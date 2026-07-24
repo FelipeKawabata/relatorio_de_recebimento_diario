@@ -1,4 +1,4 @@
-from flask import render_template, url_for, request, redirect, session, flash, make_response
+from flask import render_template, url_for, request, redirect, abort, session, flash, make_response
 from app import app, db
 from app.auth import autenticar_no_protheus, ProtheusIndisponivel, login_obrigatorio
 from app.models import Recebimento, Processo, GrupoMaterial, Material, PlanoControle, ListaInstrumentos, Conferencia
@@ -6,20 +6,66 @@ from app.metodos import lista_tabela, adicionar_processo, adicionar_grupo_materi
 from app.metodos import adicionar_plano_de_controle, adicionar_instrumento, procurar_pedido_de_compra, adicionar_recebimento, checks_do_form
 from app.forms import ProcessoForm, GrupoMaterialForm, MaterialForm, PlanoControleForm, ListaInstrumentosForm, ConferenciaForm, InstrumentoMedicaoForm
 from sqlalchemy import and_, collate
+from sqlalchemy.exc import IntegrityError
+from app.metodos_cont import desativar, atualizar_recebimento
+import re
 
 
 @app.route('/')
 @login_obrigatorio
 def homepage():
 
-    linhas = db.session.execute(
-        db.select(Conferencia, Recebimento).join(Recebimento, and_(
+    fornecedores = db.session.scalars(
+        db.select(Recebimento.nome_fornecedor)
+        .join(Conferencia, and_(
             collate(Recebimento.pedido,
                     "DATABASE_DEFAULT") == Conferencia.pedido,
             collate(Recebimento.item, "DATABASE_DEFAULT") == Conferencia.item,
-            collate(Recebimento.nota_fiscal, "DATABASE_DEFAULT") == Conferencia.nota_fiscal)))
+            collate(Recebimento.nota_fiscal, "DATABASE_DEFAULT") == Conferencia.nota_fiscal))
+        .where(Conferencia.ativo == True)
+        .distinct()
+        .order_by(Recebimento.nome_fornecedor)
+    ).all()
 
-    return render_template('index.html', linhas=linhas)
+    consulta = (db.select(Conferencia, Recebimento)
+                .join(Recebimento, and_(
+                    collate(Recebimento.pedido,
+                            "DATABASE_DEFAULT") == Conferencia.pedido,
+                    collate(Recebimento.item,
+                            "DATABASE_DEFAULT") == Conferencia.item,
+                    collate(Recebimento.nota_fiscal, "DATABASE_DEFAULT") == Conferencia.nota_fiscal))
+                .where(Conferencia.ativo == True))
+
+    pc_item = request.args.get('pc_item', '').strip()
+    fornecedor = request.args.get('fornecedor', '').strip()
+    data_de = request.args.get('data_de', '').strip()
+    data_ate = request.args.get('data_ate', '').strip()
+
+    if data_de:
+        consulta = consulta.where(Recebimento.dt_emissao >= data_de)
+
+    if data_ate:
+        consulta = consulta.where(Recebimento.dt_emissao <= data_ate)
+
+    if fornecedor:
+        consulta = consulta.where(Recebimento.nome_fornecedor == fornecedor)
+
+    if pc_item:
+        # aceita "117172" (só pedido) ou "117172-01" (pedido + item). Se o
+        # texto não casar o formato, search vira None e o filtro é ignorado
+        # em vez de estourar.
+        search = re.search(
+            r'(?P<pedido>\d{6})(?:[-/\s]+(?P<item>\d{4}))?', pc_item)
+        if search:
+            consulta = consulta.where(
+                Recebimento.pedido == search.group('pedido'))
+            if search.group('item'):
+                consulta = consulta.where(
+                    Recebimento.item == search.group('item'))
+
+    linhas = db.session.execute(consulta).all()
+
+    return render_template('index.html', linhas=linhas, fornecedores=fornecedores)
 
 
 @app.post('/recebimento/notas')
@@ -69,10 +115,6 @@ def escolher_nota():
 @login_obrigatorio
 def gravar_recebimento():
 
-    # request.form é imutável; a cópia é o que permite preencher os campos
-    # que ficaram escondidos no collapse. O form PRECISA ler daqui — sem o
-    # formdata=dados ele volta a ler o request.form original e o ajuste
-    # abaixo não tem efeito nenhum.
     dados = request.form.copy()
 
     if not dados.get('houve_nao_conformidade'):
@@ -199,7 +241,13 @@ def categorias():
 
     linhas_processo = lista_tabela(Processo)
     linhas_gp_material = lista_tabela(GrupoMaterial)
-    linhas_material = lista_tabela(Material)
+    linhas_material = (
+        db.session.query(Material, GrupoMaterial)
+        .outerjoin(GrupoMaterial, Material.grupo_id == GrupoMaterial.id)
+        .filter(Material.ativo == True)
+        .order_by(Material.grupo_id, Material.nome)
+        .all()
+    )
     linhas_plano_de_controle = lista_tabela(PlanoControle)
     linhas_instrumentos = lista_tabela(ListaInstrumentos)
 
@@ -217,3 +265,105 @@ def categorias():
                            linhas_plano_de_controle=linhas_plano_de_controle,
                            linhas_instrumentos=linhas_instrumentos
                            )
+
+
+@app.post('/categorias/<tipo>/<int:id>/desativar')
+@login_obrigatorio
+def desativar_categoria(tipo, id):
+    classes = {'processo': Processo, 'grupo': GrupoMaterial,
+               'material': Material, 'plano': PlanoControle,
+               'instrumento': ListaInstrumentos}
+    classe = classes.get(tipo)
+    if classe is None:
+        abort(404)
+    desativar(classe, id)
+    return redirect(url_for('categorias'))
+
+
+CATEGORIAS = {
+    'processo':    (Processo,          ProcessoForm),
+    'grupo':       (GrupoMaterial,     GrupoMaterialForm),
+    'material':    (Material,          MaterialForm),
+    'plano':       (PlanoControle,     PlanoControleForm),
+    'instrumento': (ListaInstrumentos, ListaInstrumentosForm),
+}
+
+
+@app.route('/categorias/<tipo>/<int:id>/editar', methods=['GET', 'POST'])
+@login_obrigatorio
+def editar_categoria(tipo, id):
+    par = CATEGORIAS.get(tipo)
+    if par is None:
+        abort(404)
+    Modelo, FormClasse = par
+    obj = db.session.get(Modelo, id)
+    if obj is None:
+        abort(404)
+
+    form = FormClasse(obj=obj)
+    if tipo == 'material':
+        form.grupo_id.choices = [(g.id, g.nome)
+                                 for g in lista_tabela(GrupoMaterial)]
+
+    if form.validate_on_submit():
+
+        for campo in form:
+            if campo.type not in ('SubmitField', 'CSRFTokenField'):
+                setattr(obj, campo.name, campo.data)
+        try:
+            db.session.commit()
+        except IntegrityError:
+            db.session.rollback()
+            form.nome.errors.append('Já existe outro registro com esse nome.')
+            return render_template('_editar_categoria.html', form=form, tipo=tipo, id=id)
+
+        resposta = make_response('')
+        resposta.headers['HX-Trigger'] = 'categoriaEditada'
+        return resposta
+
+    return render_template('_editar_categoria.html', form=form, tipo=tipo, id=id)
+
+
+@app.route('/recebimento/<int:id>/editar', methods=['GET', 'POST'])
+@login_obrigatorio
+def editar_recebimento(id):
+    conferencia = db.session.get(Conferencia, id)
+    if conferencia is None:
+        abort(404)
+
+    if request.method == 'POST':
+
+        dados = request.form.copy()
+        if not dados.get('houve_nao_conformidade'):
+            dados['pecas_reprovadas'] = '0'
+            dados['pecas_aprovadas'] = dados.get('qt_total', '')
+            dados['rpnc'] = ''
+        form = ConferenciaForm(formdata=dados)
+    else:
+        form = ConferenciaForm(obj=conferencia)
+
+        form.houve_nao_conformidade.data = (
+            bool(conferencia.pecas_reprovadas) or bool(conferencia.rpnc))
+
+    montar_choices(form)
+
+    if form.validate_on_submit() and atualizar_recebimento(conferencia, form):
+        resposta = make_response('')
+        resposta.headers['HX-Trigger'] = 'recebimentoEditado'
+        return resposta
+
+    linha = db.session.get(Recebimento, (conferencia.pedido,
+                                         conferencia.item,
+                                         conferencia.nota_fiscal))
+    return render_template('_editar_deletar_recebimento.html',
+                           form=form, conferencia=conferencia,
+                           linha=linha, checks=checks_do_form(form))
+
+
+@app.post('/recebimento/<int:id>/desativar')
+@login_obrigatorio
+def desativar_recebimento(id):
+    desativar(Conferencia, id)
+    resposta = make_response('')
+    resposta.headers['HX-Trigger'] = 'recebimentoEditado'
+    return resposta

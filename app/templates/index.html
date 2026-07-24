@@ -10,13 +10,47 @@
   
 {% block content %}
 
-<div class="container-fluid mt-2" id="div_filters">
-    <div class="row py-2" id="row_over_filter_index">
-        
-    </div>
-    <div class="row py-2">
+<div class="container-fluid mt-2 p-2" id="div_filters">
 
-    </div>
+    <form method="get" class="row g-2 align-items-end">
+        <div class="col-auto">
+            <label class="form-label filtro_label">Pedido / Item</label>
+            <input type="text" name="pc_item" class="form-control"
+                   placeholder="XXXXXX-XX"
+                   value="{{ request.args.get('pc_item', '') }}">
+        </div>
+
+        <div class="col-auto">
+            <label class="form-label filtro_label">Fornecedor</label>
+            <select name="fornecedor" class="form-select">
+                <option value="">— todos —</option>
+                {% for f in fornecedores %}
+                <option value="{{ f }}"
+                        {% if request.args.get('fornecedor') == f %}selected{% endif %}>
+                    {{ f }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-auto">
+            <label class="form-label filtro_label">Emissão — de / até</label>
+            <div class="input-group">
+                <input type="date" name="data_de" class="form-control"
+                       value="{{ request.args.get('data_de', '') }}">
+                <span class="input-group-text">até</span>
+                <input type="date" name="data_ate" class="form-control"
+                       value="{{ request.args.get('data_ate', '') }}">
+            </div>
+        </div>
+
+        <div class="col-auto">
+            <button type="submit" class="filtro_botao">Filtrar</button>
+            <a href="{{ url_for('homepage') }}"
+               class="filtro_botao filtro_botao_limpar">Limpar</a>
+        </div>
+    </form>
+
 </div>
 
 <div class="container-fluid p-1">
@@ -59,7 +93,15 @@
                     {{ "%.1f"|format(linha.Conferencia.pecas_reprovadas) }}
                     {% endif %}
                 </td>
-                <td><a href="">Detalhes</a></td>
+                <td>
+                    <button type="button" class="categoria_table_button"
+                    data-bs-toggle="modal"
+                    data-bs-target="#modal_editar_recebimento"
+                    hx-get="{{ url_for('editar_recebimento', id=linha.Conferencia.id) }}"
+                    hx-target="#corpo_modal_editar_recebimento"
+                    hx-swap="innerHTML"
+                    >Detalhes</button>
+                </td>
             </tr>
             {% else %}
                 <tr><td>Essa lista está vazia</td></tr>
@@ -119,6 +161,18 @@
             <div class="modal-body" id="corpo_modal_conferencia">
             </div>
 
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modal_editar_recebimento" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Editar</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="corpo_modal_editar_recebimento"></div>
         </div>
     </div>
 </div>

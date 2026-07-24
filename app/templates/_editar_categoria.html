@@ -1,0 +1,15 @@
+<form hx-post="{{ url_for('editar_categoria', tipo=tipo, id=id) }}"
+      hx-target="#corpo_modal_editar" hx-swap="innerHTML">
+    {{ form.hidden_tag() }}
+    {% for campo in form if campo.widget.input_type != 'hidden'
+                          and campo.type != 'SubmitField' %}
+        <div class="mb-3">
+            {{ campo.label(class="form-label") }}
+            {{ campo(class="form-control") }}
+            {% for erro in campo.errors %}
+                <div class="text-danger small">{{ erro }}</div>
+            {% endfor %}
+        </div>
+    {% endfor %}
+    <button type="submit" class="btn btn-primary">Salvar</button>
+</form>

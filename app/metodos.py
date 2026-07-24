@@ -10,7 +10,11 @@ from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 
 def lista_tabela(classe):
-    return db.session.scalars(db.select(classe)).all()
+    consulta = db.select(classe)
+
+    if hasattr(classe, 'ativo'):
+        consulta = consulta.where(classe.ativo == True)  # noqa: E712 -> ativo = 1
+    return db.session.scalars(consulta).all()
 
 # FUNÇÕES PARA ADICIONAR RELATÓRIO DE RECEBIMENTO
 
@@ -117,53 +121,91 @@ def montar_choices(form):
 # FUNÇÕES PARA ADICIONAR DADOS POR CATEGORIA
 
 
+# Cada adicionar_* checa antes se o nome já existe. Isso resolve o conflito
+# entre soft delete e a UniqueConstraint(nome): um item desativado continua
+# ocupando o nome, então "recadastrar" = reativar a linha antiga (mantendo o
+# mesmo id, e portanto o vínculo com as conferências históricas).
+
+
 def adicionar_processo(nome):
-    try:
-        db.session.add(Processo(nome=nome))
-        db.session.commit()
-    except IntegrityError:
-        db.session.rollback()
-        flash('Este processo já foi adicionado a lista!')
+    existente = db.session.scalar(
+        db.select(Processo).where(Processo.nome == nome))
+    if existente is not None:
+        if existente.ativo:
+            flash('Este processo já foi adicionado a lista!')
+        else:
+            existente.ativo = True
+            db.session.commit()
+            flash('Processo reativado.')
+        return
+    db.session.add(Processo(nome=nome))
+    db.session.commit()
 
 
 def adicionar_instrumento(nome, descricao):
-    try:
-        db.session.add(ListaInstrumentos(nome=nome,
-                                         descricao=descricao))
-        db.session.commit()
-    except IntegrityError:
-        db.session.rollback()
-        flash('Este instrumento já foi adicionado a lista!')
+    existente = db.session.scalar(
+        db.select(ListaInstrumentos).where(ListaInstrumentos.nome == nome))
+    if existente is not None:
+        if existente.ativo:
+            flash('Este instrumento já foi adicionado a lista!')
+        else:
+            existente.ativo = True
+            existente.descricao = descricao
+            db.session.commit()
+            flash('Instrumento reativado.')
+        return
+    db.session.add(ListaInstrumentos(nome=nome, descricao=descricao))
+    db.session.commit()
 
 
 def adicionar_grupo_material(nome):
-    try:
-        db.session.add(GrupoMaterial(nome=nome))
-        db.session.commit()
-    except IntegrityError:
-        db.session.rollback()
-        flash('Este grupo de materiais já foi adicionado a lista!')
+    existente = db.session.scalar(
+        db.select(GrupoMaterial).where(GrupoMaterial.nome == nome))
+    if existente is not None:
+        if existente.ativo:
+            flash('Este grupo de materiais já foi adicionado a lista!')
+        else:
+            existente.ativo = True
+            db.session.commit()
+            flash('Grupo de materiais reativado.')
+        return
+    db.session.add(GrupoMaterial(nome=nome))
+    db.session.commit()
 
 
 def adicionar_material(nome, especificacao, grupo_id_fk):
-    try:
-        db.session.add(Material(nome=nome,
-                                especificacao=especificacao,
-                                grupo_id=grupo_id_fk))
-        db.session.commit()
-    except IntegrityError:
-        db.session.rollback()
-        flash('Este material já foi adicionado a lista!')
+    existente = db.session.scalar(
+        db.select(Material).where(Material.nome == nome))
+    if existente is not None:
+        if existente.ativo:
+            flash('Este material já foi adicionado a lista!')
+        else:
+            existente.ativo = True
+            existente.especificacao = especificacao
+            existente.grupo_id = grupo_id_fk
+            db.session.commit()
+            flash('Material reativado.')
+        return
+    db.session.add(Material(nome=nome,
+                            especificacao=especificacao,
+                            grupo_id=grupo_id_fk))
+    db.session.commit()
 
 
 def adicionar_plano_de_controle(nome, descricao):
-    try:
-        db.session.add(PlanoControle(nome=nome,
-                                     descricao=descricao))
-        db.session.commit()
-    except IntegrityError:
-        db.session.rollback()
-        flash('Este plano de controle já está cadastrado')
+    existente = db.session.scalar(
+        db.select(PlanoControle).where(PlanoControle.nome == nome))
+    if existente is not None:
+        if existente.ativo:
+            flash('Este plano de controle já está cadastrado')
+        else:
+            existente.ativo = True
+            existente.descricao = descricao
+            db.session.commit()
+            flash('Plano de controle reativado.')
+        return
+    db.session.add(PlanoControle(nome=nome, descricao=descricao))
+    db.session.commit()
 
 # FUNÇÕES PARA DEFINIDIR QUAL OS CHECKLISTS DEVEM APARECER
 

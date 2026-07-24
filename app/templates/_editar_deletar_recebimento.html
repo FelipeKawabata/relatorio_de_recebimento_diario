@@ -1,0 +1,141 @@
+<form hx-post="{{ url_for('editar_recebimento', id=conferencia.id) }}"
+      hx-target="#corpo_modal_editar_recebimento" hx-swap="innerHTML">
+
+    {{ form.hidden_tag() }}
+    {{ form.pedido(type="hidden") }}
+    {{ form.item(type="hidden") }}
+    {{ form.nota_fiscal(type="hidden") }}
+
+    <div class="container mb-2">
+        <div class="row">
+            <dt class="col-3">Pedido/Item:</dt>
+            <dd class="col-3">{{ conferencia.pedido }} / {{ conferencia.item }}</dd>
+            <dt class="col-3">Nota fiscal:</dt>
+            <dd class="col-3">{{ conferencia.nota_fiscal }}</dd>
+        </div>
+        {% if linha %}
+        <div class="row">
+            <dt class="col-3">Produto:</dt>
+            <dd class="col-9">{{ linha.produto }} — {{ linha.descricao }}</dd>
+        </div>
+        <div class="row">
+            <dt class="col-3">Fornecedor:</dt>
+            <dd class="col-9">{{ linha.nome_fornecedor }}</dd>
+        </div>
+        {% endif %}
+    </div>
+
+    <hr>
+
+    <div class="row">
+        <div class="col-6">
+            {{ form.qt_total.label(class="form-label") }}
+            {{ form.qt_total(class="form-control bg-body-secondary", readonly=true) }}
+        </div>
+        <div class="col-6">
+            {{ form.certificado.label(class="form-label") }}
+            {{ form.certificado(class="form-control") }}
+        </div>
+    </div>
+
+    <div class="row mt-2">
+        <div class="col-6">
+            {{ form.plano_controle_id.label(class="form-label") }}
+            {{ form.plano_controle_id(class="form-control") }}
+        </div>
+        <div class="col-6">
+            {{ form.processo_id.label(class="form-label") }}
+            {{ form.processo_id(class="form-control",
+                **{'hx-post': url_for('checklist'),
+                   'hx-target': '#checklist_editar',
+                   'hx-swap': 'innerHTML',
+                   'hx-include': 'closest form'}) }}
+        </div>
+    </div>
+
+    <div class="mt-2">
+        {{ form.material_id.label(class="form-label") }}
+        {{ form.material_id(class="form-control",
+            **{'hx-post': url_for('checklist'),
+               'hx-target': '#checklist_editar',
+               'hx-swap': 'innerHTML',
+               'hx-include': 'closest form'}) }}
+    </div>
+
+    <hr>
+
+    <h6>Corridas</h6>
+    <div id="lista_corridas_editar">
+        {% include '_corridas.html' %}
+    </div>
+    <button type="button" class="btn btn-sm btn-outline-secondary mb-3"
+            hx-post="{{ url_for('nova_linha_corrida') }}"
+            hx-include="closest form"
+            hx-target="#lista_corridas_editar"
+            hx-swap="innerHTML">
+        + Adicionar corrida
+    </button>
+
+    <h6 class="mt-2">Instrumentos</h6>
+    <div id="lista_instrumentos_editar">
+        {% include '_instrumentos.html' %}
+    </div>
+    <button type="button" class="btn btn-sm btn-outline-secondary mb-3"
+            hx-post="{{ url_for('nova_linha_instrumento') }}"
+            hx-include="closest form"
+            hx-target="#lista_instrumentos_editar"
+            hx-swap="innerHTML">
+        + Adicionar instrumento
+    </button>
+
+    <hr>
+
+    <h6>Checklist de inspeção</h6>
+    <div id="checklist_editar" class="row mb-3">
+        {% include '_checklist.html' %}
+    </div>
+
+    <hr>
+
+    <div class="form-check mb-2">
+        {{ form.houve_nao_conformidade(class="form-check-input",
+                                       data_bs_toggle="collapse",
+                                       data_bs_target="#div_rpnc_editar") }}
+        {{ form.houve_nao_conformidade.label(class="form-check-label") }}
+    </div>
+
+    <div class="collapse {% if form.houve_nao_conformidade.data %}show{% endif %}"
+         id="div_rpnc_editar">
+        <div class="row">
+            <div class="col-6">
+                {{ form.rpnc.label(class="form-label") }}
+                {{ form.rpnc(class="form-control") }}
+            </div>
+            <div class="col-3">
+                {{ form.pecas_reprovadas.label(class="form-label") }}
+                {{ form.pecas_reprovadas(class="form-control") }}
+            </div>
+            <div class="col-3">
+                {{ form.pecas_aprovadas.label(class="form-label") }}
+                {{ form.pecas_aprovadas(class="form-control") }}
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-2 mb-3">
+        {{ form.responsavel.label(class="form-label") }}
+        {{ form.responsavel(class="form-control") }}
+    </div>
+
+    <hr>
+
+    <div class="d-flex justify-content-between">
+        <button type="button" class="btn btn-outline-danger"
+                hx-post="{{ url_for('desativar_recebimento', id=conferencia.id) }}"
+                hx-confirm="Excluir este recebimento? Ele deixará de aparecer na lista."
+                hx-swap="none">
+            Excluir recebimento
+        </button>
+        <button type="submit" class="btn btn-primary" id="button_editar_recebimento">Salvar alterações</button>
+    </div>
+</form>

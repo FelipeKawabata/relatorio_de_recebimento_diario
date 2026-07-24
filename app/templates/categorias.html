@@ -51,8 +51,17 @@
                                     <tr>
                                         <td>{{ linha.nome }}</td>
                                         <td>
-                                            <a href="" class="categoria_table_button">Editar</a>
-                                            <a href="" class="categoria_table_button">Excluir</a>
+                                        <button type="button" class="categoria_table_button"
+                                                data-bs-toggle="modal" data-bs-target="#modal_editar"
+                                                hx-get="{{ url_for('editar_categoria', tipo='processo', id=linha.id) }}"
+                                                hx-target="#corpo_modal_editar" hx-swap="innerHTML">Editar</button>
+
+                                        <form method="post"
+                                                action="{{ url_for('desativar_categoria', tipo='processo', id=linha.id) }}"
+                                                onsubmit="return confirm('Desativar {{ linha.nome }}?')"
+                                                class="d-inline">
+                                                <button type="submit" class="categoria_table_button">Excluir</button>
+                                        </form>
                                         </td>
                                     </tr>
                                 {% else %}
@@ -109,10 +118,19 @@
                             {% for linha in linhas_gp_material %}
                             <tr>
                                 <td>{{ linha.nome }}</td>
-                                <td>
-                                    <a href="" class="categoria_table_button">Editar</a>
-                                    <a href="" class="categoria_table_button">Excluir</a>
-                                </td>
+                                        <td>
+                                        <button type="button" class="categoria_table_button"
+                                                data-bs-toggle="modal" data-bs-target="#modal_editar"
+                                                hx-get="{{ url_for('editar_categoria', tipo='grupo', id=linha.id) }}"
+                                                hx-target="#corpo_modal_editar" hx-swap="innerHTML">Editar</button>
+
+                                        <form method="post"
+                                                action="{{ url_for('desativar_categoria', tipo='grupo', id=linha.id) }}"
+                                                onsubmit="return confirm('Desativar {{ linha.nome }}?')"
+                                                class="d-inline">
+                                                <button type="submit" class="categoria_table_button">Excluir</button>
+                                        </form>
+                                        </td>
                             </tr>
                             {% else %}
                                 <tr>
@@ -189,16 +207,25 @@
                             <tbody class="categorias_table_body">
                                 {% for linha in linhas_material %}
                                     <tr>
-                                        <td>{{ linha.nome }}</td>
-                                        <td>{{ linha.especificacao }}</td>
-                                        {% if not linha.grupo_id %}
+                                        <td>{{ linha.Material.nome }}</td>
+                                        <td>{{ linha.Material.especificacao }}</td>
+                                        {% if not linha.Material.grupo_id %}
                                         <td>-</td>
                                         {% else %}
-                                        <td>{{ linha.grupo_id }}</td>
+                                        <td>{{ linha.GrupoMaterial.nome }}</td>
                                         {% endif %}
                                         <td>
-                                            <a href="" class="categoria_table_button">Editar</a>
-                                            <a href="" class="categoria_table_button">Excluir</a>
+                                        <button type="button" class="categoria_table_button"
+                                                data-bs-toggle="modal" data-bs-target="#modal_editar"
+                                                hx-get="{{ url_for('editar_categoria', tipo='material', id=linha.Material.id) }}"
+                                                hx-target="#corpo_modal_editar" hx-swap="innerHTML">Editar</button>
+
+                                        <form method="post"
+                                                action="{{ url_for('desativar_categoria', tipo='material', id=linha.Material.id) }}"
+                                                onsubmit="return confirm('Desativar {{ linha.Material.nome }}?')"
+                                                class="d-inline">
+                                                <button type="submit" class="categoria_table_button">Excluir</button>
+                                        </form>
                                         </td>
                                     </tr>
                                 {% else %}
@@ -279,8 +306,17 @@
                                         <td>{{ linha.nome }}</td>
                                         <td>{{ linha.descricao }}</td>
                                         <td>
-                                            <a href="" class="categoria_table_button">Editar</a>
-                                            <a href="" class="categoria_table_button">Excluir</a>
+                                        <button type="button" class="categoria_table_button"
+                                                data-bs-toggle="modal" data-bs-target="#modal_editar"
+                                                hx-get="{{ url_for('editar_categoria', tipo='instrumento', id=linha.id) }}"
+                                                hx-target="#corpo_modal_editar" hx-swap="innerHTML">Editar</button>
+
+                                        <form method="post"
+                                                action="{{ url_for('desativar_categoria', tipo='instrumento', id=linha.id) }}"
+                                                onsubmit="return confirm('Desativar {{ linha.nome }}?')"
+                                                class="d-inline">
+                                                <button type="submit" class="categoria_table_button">Excluir</button>
+                                        </form>
                                         </td>
                                     </tr>
                                 {% else %}
@@ -337,8 +373,17 @@
                                     <tr>
                                         <td>{{ linha.nome }}</td>
                                         <td>
-                                            <a href="" class="categoria_table_button">Editar</a>
-                                            <a href="" class="categoria_table_button">Excluir</a>
+                                        <button type="button" class="categoria_table_button"
+                                                data-bs-toggle="modal" data-bs-target="#modal_editar"
+                                                hx-get="{{ url_for('editar_categoria', tipo='plano', id=linha.id) }}"
+                                                hx-target="#corpo_modal_editar" hx-swap="innerHTML">Editar</button>
+
+                                        <form method="post"
+                                                action="{{ url_for('desativar_categoria', tipo='plano', id=linha.id) }}"
+                                                onsubmit="return confirm('Desativar {{ linha.nome }}?')"
+                                                class="d-inline">
+                                                <button type="submit" class="categoria_table_button">Excluir</button>
+                                        </form>
                                         </td>
                                     </tr>
                                 {% else %}
@@ -357,5 +402,16 @@
     </div>
 
 
+</div>
+<div class="modal fade" id="modal_editar" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Editar</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="corpo_modal_editar"></div>
+        </div>
+    </div>
 </div>
 {% endblock %}

@@ -214,6 +214,14 @@ a.class_botao_logout:hover {
     margin: 0 auto;
 }
 
+/* A tabela fica dentro de um container-fluid com padding, que estreitava os
+   95% dela em relação à #div_filters (que é filha direta). Zerar esse padding
+   faz as duas terem a MESMA largura (95% da tela). */
+.container-fluid:has(> #table_index) {
+    padding-left: 0;
+    padding-right: 0;
+}
+
 #index_table_body{
     font-size: 16px;
 }
@@ -223,20 +231,71 @@ a.class_botao_logout:hover {
 }
 
 
+#index_table_head td:nth-child(8) {
+    min-width: 120px;
+}
 
 /* CONFIGURAÇÕES DA DIV COM FILTRO E BOTÃO DE ADICIONAR RECEBIMENTO */
 
 #div_filters{
-    border: 2px solid rgb(var(--azul_escuro_ia));
+    border: 1px groove rgb(var(--azul_escuro_ia));
     border-radius: 3px;
+    max-width: 95%;
     margin: 0 auto;
     align-items: center;
     justify-content: center;
-    max-width: 95%;
+    display: flex;
 }
 
-#row_over_filter_index{
+.filtro_label {
+    font-size: .95rem;
+    font-weight: 600;
+    color: rgb(var(--azul_escuro_ia));
+    margin-bottom: .15rem;
+}
+
+#div_filters .form-control,
+#div_filters .form-select {
+    font-size: 1.05rem;
+}
+
+#div_filters .form-control:focus,
+#div_filters .form-select:focus {
+    border-color: rgb(var(--azul_ia));
+    box-shadow: 0 0 0 .2rem rgba(var(--azul_ia), .25);
+}
+
+#div_filters .input-group-text {
+    background-color: rgb(var(--azul_ia_claro));
+    color: rgb(var(--azul_escuro_ia));
+    border-color: rgb(var(--azul_ia_claro));
+}
+
+.filtro_botao {
+    border: 2px solid rgb(var(--azul_escuro_ia));
+    border-radius: 2px;
+    background-color: rgb(var(--azul_ia));
+    color: rgb(var(--off_white));
+    padding: 6px 18px;
+    font: inherit;
+    text-decoration: none;
+    cursor: pointer;
+    display: inline-block;
+}
+
+.filtro_botao:hover {
     background-color: rgb(var(--azul_escuro_ia));
+    color: rgb(var(--off_white));
+}
+
+.filtro_botao_limpar {
+    background-color: transparent;
+    color: rgb(var(--azul_escuro_ia));
+}
+
+.filtro_botao_limpar:hover {
+    background-color: rgb(var(--azul_ia_claro));
+    color: rgb(var(--azul_escuro_ia));
 }
 
 /* CONFIGURAÇÕES DOS MODAIS */
@@ -291,6 +350,12 @@ a.class_botao_logout:hover {
     background-color: rgb(var(--azul_ia));
     color: rgb(var(--off_white));
     border: 2px solid rgb(var(--azul_escuro_ia));
+}
+
+#button_editar_recebimento{
+    background-color: rgb(var(--azul_ia));
+    color: rgb(var(--off_white));
+    border: 2px solid rgb(var(--azul_escuro_ia));  
 }
 
 /*========================= FIM - CONFIGURAÇÕES DE INDEX.HTML ==================== */
