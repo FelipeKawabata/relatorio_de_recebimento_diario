@@ -40,6 +40,12 @@
             </div>
 
             <div class="col-auto p-1 m-0">
+                <a class="class_link_button" href="{{ url_for('estatistica') }}">
+                    Estatísticas
+                </a>
+            </div>
+
+            <div class="col-auto p-1 m-0">
                 {% block botao_index %}{% endblock %}
             </div>
             
@@ -53,6 +59,20 @@
 
     </div>
 </header>
+
+{% with mensagens = get_flashed_messages() %}
+    {% if mensagens %}
+    <div id="area_flash" class="mt-2">
+        {% for msg in mensagens %}
+        <div class="alert alert-info alert-dismissible fade show" role="alert">
+            {{ msg }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"
+                    aria-label="Fechar"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+{% endwith %}
 
 {% block content %}
 {% endblock %}

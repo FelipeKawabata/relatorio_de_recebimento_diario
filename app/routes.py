@@ -9,6 +9,7 @@ from sqlalchemy import and_, collate
 from sqlalchemy.exc import IntegrityError
 from app.metodos_cont import desativar, atualizar_recebimento
 import re
+from app.estatisticas import porcentagem_rpnc_fornecedor, rpncs_por_mes, pecas_inspecionadas
 
 
 @app.route('/')
@@ -367,3 +368,24 @@ def desativar_recebimento(id):
     resposta = make_response('')
     resposta.headers['HX-Trigger'] = 'recebimentoEditado'
     return resposta
+
+
+@app.route('/estatisticas', methods=['GET'])
+@login_obrigatorio
+def estatistica():
+
+    data_de = request.args.get('data_de', '').strip() or None
+    data_ate = request.args.get('data_ate', '').strip() or None
+    fornecedor = request.args.get('fornecedor', '').strip() or None
+
+    graf_pecas_inpecionadas = pecas_inspecionadas()
+    graf_rpnc_mes = rpncs_por_mes(fornecedor)
+    graf_percent_rpnc = porcentagem_rpnc_fornecedor(data_de, data_ate)
+
+    graficos = {
+        'graf_pecas_inpecionadas': graf_pecas_inpecionadas,
+        'graf_rpnc_mes': graf_rpnc_mes,
+        'graf_percent_rpnc': graf_percent_rpnc
+    }
+
+    return render_template('estatisticas.html', graficos=graficos)

@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block titulo %}Estatísticas{% endblock %}
+
+{% block content %}
+
+<div class="container">
+  <form method="get" class="row g-2 mb-4">
+    <div class="col-auto">
+      <input type="date" name="data_de" class="form-control"
+             value="{{ request.args.get('data_de', '') }}">
+    </div>
+    <div class="col-auto">
+      <input type="date" name="data_ate" class="form-control"
+             value="{{ request.args.get('data_ate', '') }}">
+    </div>
+    <div class="col-auto">
+      <button class="btn btn-primary">Filtrar</button>
+    </div>
+  </form>
+</div>
+
+<div class="container">
+    <div class="row mt-2">
+        <div class="col-6">
+            <div class="cartao_grafico">
+                {{ graficos.graf_pecas_inpecionadas | safe }}
+            </div>
+        </div>
+        <div class="col-6">
+            <div class="cartao_grafico">
+                {{ graficos.graf_rpnc_mes | safe }}
+            </div>
+        </div>
+    </div>
+    <div class="row mt-2">
+        <div class="col-6">
+            <div class="cartao_grafico">
+                {{ graficos.graf_percent_rpnc | safe }}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

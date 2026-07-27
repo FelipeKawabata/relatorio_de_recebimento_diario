@@ -214,12 +214,19 @@ a.class_botao_logout:hover {
     margin: 0 auto;
 }
 
-/* A tabela fica dentro de um container-fluid com padding, que estreitava os
-   95% dela em relação à #div_filters (que é filha direta). Zerar esse padding
-   faz as duas terem a MESMA largura (95% da tela). */
+/* mensagens flash (base.html) — alinhadas com a largura do resto */
+#area_flash {
+    max-width: 95%;
+    margin: .5rem auto 0;
+}
+
+/* A tabela fica dentro de um container-fluid com a classe p-1 (padding
+   !important do Bootstrap), que estreitava os 95% dela em relação à
+   #div_filters. O !important aqui é para vencer o do p-1 e as duas ficarem
+   com a MESMA largura (95% da tela). */
 .container-fluid:has(> #table_index) {
-    padding-left: 0;
-    padding-right: 0;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
 }
 
 #index_table_body{
@@ -242,9 +249,6 @@ a.class_botao_logout:hover {
     border-radius: 3px;
     max-width: 95%;
     margin: 0 auto;
-    align-items: center;
-    justify-content: center;
-    display: flex;
 }
 
 .filtro_label {
@@ -403,3 +407,20 @@ a.categoria_table_button:hover{
 
 
 /*========================= FIM - CONFIGURAÇÕES DE CATEGORIAS.HTML ==================== */
+
+
+/*========================= CONFIGURAÇÕES DE ESTATISTICAS.HTML ==================== */
+
+/* A coluna (.col-6) posiciona; este cartão decora. Estilizar a coluna direto
+   faria a borda nascer na aresta externa dela, e as duas colunas encostariam
+   uma na outra — o gutter do Bootstrap é padding INTERNO. */
+.cartao_grafico {
+    border: 2px solid rgb(var(--azul_escuro_ia));
+    border-radius: 4px;
+    padding: 8px;
+    background-color: white;
+}
+
+
+
+/*========================= FIM - CONFIGURAÇÕES DE ESTATISTICAS.HTML ==================== */

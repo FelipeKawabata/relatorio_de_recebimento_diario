@@ -257,12 +257,7 @@ SIGLA_PARA_PROCESSO = {
 
 
 def processo_sugerido(produto: str) -> int:
-    """Id do Processo sugerido pelo código do produto; 0 se não souber.
 
-    O 0 é o valor do '— selecione —' montado em montar_choices(), então
-    'OUT' (regex não reconheceu) deixa o select vazio para o usuário
-    escolher na mão — que é exatamente o comportamento desejado.
-    """
     nome = SIGLA_PARA_PROCESSO.get(definir_processo(produto))
 
     if nome is None:
@@ -274,14 +269,11 @@ def processo_sugerido(produto: str) -> int:
     return processo.id if processo else 0
 
 
-# Ordem em que os checkboxes aparecem na tela. frozenset não tem ordem
-# estável, então a regra decide QUAIS aparecem e esta lista decide ONDE.
 ORDEM_CHECKS = ['analise_certificado', 'analise_visual',
                 'identif_e_rastreabilidade', 'dimensional',
                 'id_ligas', 'dureza_sha', 'dureza_tt',
                 'ranhura', 'fios18_21', 'rugosidade_acabamento']
 
-# Blocos reaproveitados nas regras abaixo
 BASE = frozenset({'analise_certificado', 'analise_visual',
                   'identif_e_rastreabilidade', 'dimensional'})
 USINAGEM = frozenset({'ranhura', 'fios18_21', 'rugosidade_acabamento'})
@@ -290,11 +282,8 @@ DUREZA_TT = frozenset({'dureza_tt'})
 DUREZA_SHA = frozenset({'dureza_sha'})
 ACABAMENTO = frozenset({'rugosidade_acabamento'})
 
-# Chave: (nome do grupo do material, nome do processo). As strings precisam
-# bater com RDR_GRUPO_MATERIAL.nome e RDR_PROCESSO.nome — use
-# validar_regras_checklist() depois de mexer aqui.
 REGRAS_CHECKLIST = {
-    # ---------- Aço: identificação de liga enquanto o metal está exposto
+
     ('Aço', 'Bruto'):                BASE | LIGA,
     ('Aço', 'Usinagem'):             BASE | LIGA | USINAGEM,
     ('Aço', 'Semi-acabado'):         BASE | LIGA | USINAGEM,
@@ -304,7 +293,7 @@ REGRAS_CHECKLIST = {
     ('Aço', 'Revestimento'):         BASE,
     ('Aço', 'Pintura'):              BASE,
 
-    # ---------- Metais não ferrosos: mesma lógica, sem id_ligas
+
     ('Metais', 'Bruto'):              BASE,
     ('Metais', 'Usinagem'):           BASE | USINAGEM,
     ('Metais', 'Semi-acabado'):       BASE | USINAGEM,
@@ -314,8 +303,7 @@ REGRAS_CHECKLIST = {
     ('Metais', 'Revestimento'):       BASE,
     ('Metais', 'Pintura'):            BASE,
 
-    # ---------- Polímeros: dureza Shore A no lugar de liga/dureza TT.
-    # Não levam ranhura nem 18 fios — são checks de face de flange metálica.
+
     ('Polímeros', 'Bruto'):         BASE | DUREZA_SHA,
     ('Polímeros', 'Vulcanização'):  BASE | DUREZA_SHA,
     ('Polímeros', 'Usinagem'):      BASE | DUREZA_SHA | ACABAMENTO,
