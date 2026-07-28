@@ -1,5 +1,9 @@
 {% extends 'base.html' %}
 
+{% macro url_pagina(n) -%}
+    {{ url_for('homepage', **dict(request.args.to_dict(), pagina=n)) }}
+{%- endmacro %}
+
 {% block titulo %}Hello world!{% endblock %}
 
 {% block botao_index %}
@@ -10,12 +14,8 @@
   
 {% block content %}
 
-<div class="container-fluid mt-2 p-2" id="div_filters">
-    <div class="row">
-        
-    </div>
-
-    <form method="get" class="row g-2 align-items-end">
+<div class="container-fluid mt-3 mb-3" id="div_filters">
+    <form method="get" class="row g-3 align-items-end">
         <div class="col-auto">
             <label class="form-label filtro_label">Pedido / Item</label>
             <input type="text" name="pc_item" class="form-control"
@@ -48,6 +48,7 @@
         </div>
 
         <div class="col-auto">
+            <input type="hidden" name="pagina" value="1">
             <button type="submit" class="filtro_botao">Filtrar</button>
             <a href="{{ url_for('homepage') }}"
                class="filtro_botao filtro_botao_limpar">Limpar</a>
@@ -150,7 +151,18 @@
     </div>
 </div>
 
-<!-- ETAPA 2 - CHECKLIST DE CONFERÊNCIA -->
+<div class="d-flex justify-content-center align-items-center gap-3 mt-3 mb-3">
+    {% if pagina > 1 %}
+        <a href="{{ url_pagina(pagina - 1) }}" class="filtro_botao filtro_botao_limpar">‹ Anterior</a>
+    {% endif %}
+
+    <span class="filtro_label mb-0">Página {{ pagina }} de {{ total_paginas }}</span>
+
+    {% if pagina < total_paginas %}
+        <a href="{{ url_pagina(pagina + 1) }}" class="filtro_botao filtro_botao_limpar">Próxima ›</a>
+    {% endif %}
+</div>
+
 
 <div class="modal fade" id="modal_recebimento" tabindex="-1">
     <div class="modal-dialog modal-xl modal-dialog-scrollable">

@@ -6,21 +6,12 @@ import re
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 
-# FUNÇÃO GERAL DE LISTAGEM
-
-
 def lista_tabela(classe):
     consulta = db.select(classe)
 
     if hasattr(classe, 'ativo'):
         consulta = consulta.where(classe.ativo == True)  # noqa: E712 -> ativo = 1
     return db.session.scalars(consulta).all()
-
-# FUNÇÕES PARA ADICIONAR RELATÓRIO DE RECEBIMENTO
-
-# Procura o pedido de compra digitiado, verifica formato e verifica se
-# tem mais de uma nota fiscal vinculada. A função retorna as linhas que batem
-# com o pedido de compra
 
 
 def procurar_pedido_de_compra(pedido_de_compra):
@@ -65,12 +56,6 @@ def adicionar_recebimento(form):
         responsavel=form.responsavel.data,
     )
 
-    # Checkbox que não foi renderizado chega no WTForms como False, e False
-    # significa "verifiquei e reprovou" — diferente de NULL, que é "não se
-    # aplica". Por isso a regra é recalculada AQUI, no servidor, a partir do
-    # material e do processo que estão sendo gravados: o que o cliente mandou
-    # não é confiável (o usuário pode ter trocado o material depois que os
-    # checkboxes foram desenhados).
     aplicaveis = set(checks_do_form(form))
 
     for nome in ORDEM_CHECKS:
@@ -116,15 +101,6 @@ def montar_choices(form):
     instrumentos = [(i.id, i.nome) for i in lista_tabela(ListaInstrumentos)]
     for entrada in form.instrumentos:
         entrada.instrumento_id.choices = instrumentos
-
-
-# FUNÇÕES PARA ADICIONAR DADOS POR CATEGORIA
-
-
-# Cada adicionar_* checa antes se o nome já existe. Isso resolve o conflito
-# entre soft delete e a UniqueConstraint(nome): um item desativado continua
-# ocupando o nome, então "recadastrar" = reativar a linha antiga (mantendo o
-# mesmo id, e portanto o vínculo com as conferências históricas).
 
 
 def adicionar_processo(nome):
@@ -207,12 +183,9 @@ def adicionar_plano_de_controle(nome, descricao):
     db.session.add(PlanoControle(nome=nome, descricao=descricao))
     db.session.commit()
 
-# FUNÇÕES PARA DEFINIDIR QUAL OS CHECKLISTS DEVEM APARECER
-
 
 def definir_processo(texto: str) -> str:
 
-    # Recebimento.produto é nullable e re.search estoura com None
     if not texto:
         return 'OUT'
 
@@ -240,9 +213,6 @@ def definir_processo(texto: str) -> str:
     return 'OUT'
 
 
-# Ponte entre a sigla que o regex devolve e o nome cadastrado em RDR_PROCESSO.
-# A busca é por NOME, não por id: assim, cadastrar um processo novo pela tela
-# de categorias já faz o palpite funcionar, sem mexer em código.
 SIGLA_PARA_PROCESSO = {
     'USI': 'Usinagem',
     'PNT': 'Pintura',
@@ -310,7 +280,6 @@ REGRAS_CHECKLIST = {
     ('Polímeros', 'Semi-acabado'):  BASE | DUREZA_SHA,
     ('Polímeros', 'Acabado'):       BASE | DUREZA_SHA,
 
-    # ---------- Grupos de serviço: o item recebido é o próprio tratamento
     ('Tratamento Térmico', 'Tratamento térmico'):    BASE | DUREZA_TT,
     ('Pintura', 'Pintura'):                          BASE,
     ('Revestimentos e Acabamentos', 'Revestimento'): BASE,
@@ -319,26 +288,18 @@ REGRAS_CHECKLIST = {
 
 
 def checks_aplicaveis(grupo_material: str, processo: str) -> frozenset[str]:
-    """Conjunto de checks válidos para o par (grupo, processo).
 
-    Aceita None nos dois argumentos (material ou processo ainda não
-    escolhido no formulário) e cai no BASE.
-    """
     return REGRAS_CHECKLIST.get((grupo_material, processo), BASE)
 
 
 def checks_ordenados(grupo_material: str, processo: str) -> list[str]:
-    """Mesma regra, já na ordem de exibição — é o que o template consome."""
+
     aplicaveis = checks_aplicaveis(grupo_material, processo)
     return [nome for nome in ORDEM_CHECKS if nome in aplicaveis]
 
 
 def checks_do_form(form) -> list[str]:
-    """Resolve material_id/processo_id do form e devolve os checks da regra.
 
-    É o salto id -> nome que as rotas precisam. Mantém checks_aplicaveis()
-    sem contato com o banco, do mesmo jeito que definir_processo().
-    """
     material = db.session.get(Material, form.material_id.data or 0)
     processo = db.session.get(Processo, form.processo_id.data or 0)
 
@@ -349,12 +310,7 @@ def checks_do_form(form) -> list[str]:
 
 
 def validar_regras_checklist() -> dict[str, list[str]]:
-    """Confere se as strings usadas em REGRAS_CHECKLIST existem no banco.
 
-    Erro de acento ou de maiúscula não estoura em runtime: a regra
-    simplesmente nunca casa e o checklist aparece com o BASE, sem aviso.
-    Rode isto depois de editar as regras ou de renomear algo pela tela.
-    """
     grupos_banco = {g.nome for g in lista_tabela(GrupoMaterial)}
     processos_banco = {p.nome for p in lista_tabela(Processo)}
 

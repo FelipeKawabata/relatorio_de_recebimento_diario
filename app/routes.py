@@ -9,7 +9,10 @@ from sqlalchemy import and_, collate
 from sqlalchemy.exc import IntegrityError
 from app.metodos_cont import desativar, atualizar_recebimento
 import re
-from app.estatisticas import porcentagem_rpnc_fornecedor, rpncs_por_mes, pecas_inspecionadas
+import math
+from app.estatisticas import porcentagem_rpnc_fornecedor, rpncs_por_mes, pecas_inspecionadas, taxa_reprova_mensal, tx_reprova_mes_anterior, var_tx_reprova
+from app.estatisticas import janela_mes_anterior, janela_mes_atual, fornecedor_com_mais_reprova, contagem_rpncs, ritmo_conferencias
+from app.estatisticas import taxa_reprova_por_mes, lista_fornecedores
 
 
 @app.route('/')
@@ -35,7 +38,9 @@ def homepage():
                     collate(Recebimento.item,
                             "DATABASE_DEFAULT") == Conferencia.item,
                     collate(Recebimento.nota_fiscal, "DATABASE_DEFAULT") == Conferencia.nota_fiscal))
-                .where(Conferencia.ativo == True))
+                .where(Conferencia.ativo == True)
+                .order_by(Conferencia.dt_hr_inspecao.desc(),
+                          Conferencia.id.desc()))
 
     pc_item = request.args.get('pc_item', '').strip()
     fornecedor = request.args.get('fornecedor', '').strip()
@@ -52,9 +57,7 @@ def homepage():
         consulta = consulta.where(Recebimento.nome_fornecedor == fornecedor)
 
     if pc_item:
-        # aceita "117172" (só pedido) ou "117172-01" (pedido + item). Se o
-        # texto não casar o formato, search vira None e o filtro é ignorado
-        # em vez de estourar.
+
         search = re.search(
             r'(?P<pedido>\d{6})(?:[-/\s]+(?P<item>\d{4}))?', pc_item)
         if search:
@@ -64,9 +67,24 @@ def homepage():
                 consulta = consulta.where(
                     Recebimento.item == search.group('item'))
 
-    linhas = db.session.execute(consulta).all()
+    pagina = request.args.get('pagina', 1, type=int)
+    por_pagina = 50
 
-    return render_template('index.html', linhas=linhas, fornecedores=fornecedores)
+    total = db.session.scalar(
+        consulta.order_by(None).with_only_columns(
+            db.func.count(), maintain_column_froms=True))
+
+    total_paginas = max(1, math.ceil(total / por_pagina))
+    pagina = min(max(pagina, 1), total_paginas)
+
+    linhas = db.session.execute(
+        consulta.limit(por_pagina)
+                .offset((pagina - 1) * por_pagina)
+    ).all()
+
+    return render_template('index.html', linhas=linhas,
+                           fornecedores=fornecedores,
+                           pagina=pagina, total_paginas=total_paginas)
 
 
 @app.post('/recebimento/notas')
@@ -381,11 +399,40 @@ def estatistica():
     graf_pecas_inpecionadas = pecas_inspecionadas()
     graf_rpnc_mes = rpncs_por_mes(fornecedor)
     graf_percent_rpnc = porcentagem_rpnc_fornecedor(data_de, data_ate)
+    graf_tx_reprova_mes = taxa_reprova_por_mes()
+
+    card_tx_reprova = taxa_reprova_mensal()
+    card_tx_reprova_mes_anterior = tx_reprova_mes_anterior()
+    card_var_tx_reprova = var_tx_reprova()
+
+    de, ate = janela_mes_atual()
+    card_pior_fornecedor = fornecedor_com_mais_reprova(de, ate)
+    card_contagem_rpnc = contagem_rpncs(de, ate)
+    card_ritmo_conferencia = ritmo_conferencias(de, ate)
+
+    de, ate = janela_mes_anterior()
+    card_pior_fornecedor_anterior = fornecedor_com_mais_reprova(de, ate)
+    card_contagem_rpnc_anterior = contagem_rpncs(de, ate)
+    card_ritmo_conferencia_anterior = ritmo_conferencias(de, ate)
 
     graficos = {
         'graf_pecas_inpecionadas': graf_pecas_inpecionadas,
         'graf_rpnc_mes': graf_rpnc_mes,
-        'graf_percent_rpnc': graf_percent_rpnc
+        'graf_percent_rpnc': graf_percent_rpnc,
+        'graf_tx_reprova_mes': graf_tx_reprova_mes
     }
 
-    return render_template('estatisticas.html', graficos=graficos)
+    cards = {
+        'card_tx_reprova': card_tx_reprova,
+        'card_tx_reprova_mes_anterior': card_tx_reprova_mes_anterior,
+        'card_var_tx_reprova': card_var_tx_reprova,
+        'card_pior_fornecedor': card_pior_fornecedor,
+        'card_pior_fornecedor_anterior': card_pior_fornecedor_anterior,
+        'card_contagem_rpnc': card_contagem_rpnc,
+        'card_contagem_rpnc_anterior': card_contagem_rpnc_anterior,
+        'card_ritmo_conferencia': card_ritmo_conferencia,
+        'card_ritmo_conferencia_anterior': card_ritmo_conferencia_anterior
+    }
+
+    return render_template('estatisticas.html', graficos=graficos, cards=cards,
+                           fornecedores=lista_fornecedores())

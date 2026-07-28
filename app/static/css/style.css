@@ -208,7 +208,7 @@ a.class_botao_logout:hover {
 }
 
 #table_index{
-    border: 1px groove rgb(var(--azul_escuro_ia));
+    border: 1px solid rgb(var(--azul_ia_claro));
     border-radius: 3px;
     max-width: 95%;
     margin: 0 auto;
@@ -245,10 +245,12 @@ a.class_botao_logout:hover {
 /* CONFIGURAÇÕES DA DIV COM FILTRO E BOTÃO DE ADICIONAR RECEBIMENTO */
 
 #div_filters{
-    border: 1px groove rgb(var(--azul_escuro_ia));
-    border-radius: 3px;
+    border: 1px solid rgb(var(--azul_ia_claro));
+    border-radius: 6px;
+    background-color: white;
     max-width: 95%;
     margin: 0 auto;
+    padding: 14px 18px;
 }
 
 .filtro_label {
@@ -261,6 +263,7 @@ a.class_botao_logout:hover {
 #div_filters .form-control,
 #div_filters .form-select {
     font-size: 1.05rem;
+    border-color: rgb(var(--azul_ia_claro));
 }
 
 #div_filters .form-control:focus,
@@ -411,14 +414,33 @@ a.categoria_table_button:hover{
 
 /*========================= CONFIGURAÇÕES DE ESTATISTICAS.HTML ==================== */
 
-/* A coluna (.col-6) posiciona; este cartão decora. Estilizar a coluna direto
-   faria a borda nascer na aresta externa dela, e as duas colunas encostariam
-   uma na outra — o gutter do Bootstrap é padding INTERNO. */
-.cartao_grafico {
-    border: 2px solid rgb(var(--azul_escuro_ia));
-    border-radius: 4px;
-    padding: 8px;
+#div_filtros_estatisticas {
+    border: 1px solid rgb(var(--azul_ia_claro));
+    border-radius: 6px;
     background-color: white;
+    padding: 14px 18px;
+}
+
+#div_filtros_estatisticas .form-control,
+#div_filtros_estatisticas .form-select {
+    border-color: rgb(var(--azul_ia_claro));
+}
+
+#div_filtros_estatisticas .form-control:focus,
+#div_filtros_estatisticas .form-select:focus {
+    border-color: rgb(var(--azul_ia));
+    box-shadow: 0 0 0 .2rem rgba(var(--azul_ia), .2);
+}
+
+#div_filtros_estatisticas .input-group-text {
+    background-color: rgb(var(--azul_ia_claro));
+    color: rgb(var(--azul_escuro_ia));
+    border-color: rgb(var(--azul_ia_claro));
+}
+
+#conteudo_estatisticas .card {
+    border: 1px solid rgb(var(--azul_ia_claro));
+    border-radius: 6px;
 }
 
 
