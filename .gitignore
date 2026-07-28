@@ -22,7 +22,6 @@ build/
 .DS_Store
 Thumbs.db
 
-'RO-PR-051_Relatório_Diário_de_Recebimento (2026) (novo)'
-'RO-PR-051_Relatório_Diário_de_Recebimento (2026) (novo).xslx'
-RO-PR-051_Relatório_Diário_de_Recebimento (2026) (novo)
-RO-PR-051_Relatório_Diário_de_Recebimento (2026) (novo).xslx
+*.xlsx
+*.xlsm
+~$*
